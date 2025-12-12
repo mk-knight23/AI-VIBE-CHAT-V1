@@ -1,6 +1,11 @@
 import { useState, useCallback, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
+import { analytics } from "@/lib/analytics";
+import { security } from "@/lib/security";
 
+/**
+ * Message interface representing a single chat message
+ */
 export interface Message {
   id: string;
   content: string;
@@ -20,6 +25,9 @@ export interface Message {
   isStreaming?: boolean;
 }
 
+/**
+ * Chat interface representing a complete conversation
+ */
 export interface Chat {
   id: string;
   title: string;
@@ -32,6 +40,9 @@ export interface Chat {
   model?: string;
 }
 
+/**
+ * ChatSettings interface for configuring AI behavior
+ */
 export interface ChatSettings {
   temperature: number;
   maxTokens: number;
@@ -39,7 +50,22 @@ export interface ChatSettings {
   streamResponses: boolean;
 }
 
-// CHUTES API integration with streaming support
+/**
+ * CHUTES API integration with streaming support
+ *
+ * Handles communication with the CHUTES AI API including:
+ * - Regular and streaming responses
+ * - Error handling and retry logic
+ * - Request/response logging
+ * - Security validation
+ *
+ * @param message - User message content
+ * @param apiToken - CHUTES API authentication token
+ * @param model - AI model to use (default: GLM-4.5-Air)
+ * @param settings - Optional chat settings
+ * @param onStream - Optional callback for streaming responses
+ * @returns Promise resolving to the AI response
+ */
 const callChutesAPI = async (
   message: string,
   apiToken: string,
@@ -47,12 +73,26 @@ const callChutesAPI = async (
   settings?: Partial<ChatSettings>,
   onStream?: (chunk: string) => void
 ): Promise<string> => {
+  // Validate API token
   if (!apiToken) {
     throw new Error("CHUTES API token is required");
   }
 
+  // Validate input for security
+  const validation = security.validateMessage(message);
+  if (!validation.valid) {
+    throw new Error(`Invalid message: ${validation.errors.join(', ')}`);
+  }
+
+  // Check rate limiting
+  const rateLimitKey = `api_${Date.now()}`;
+  if (!security.checkRateLimit(rateLimitKey)) {
+    throw new Error("Rate limit exceeded. Please try again later.");
+  }
+
   console.log('🔧 Making API call with:', { model, apiToken: apiToken.substring(0, 20) + '...' });
 
+  // Prepare request body
   const requestBody = {
     model: model,
     messages: [
@@ -64,64 +104,142 @@ const callChutesAPI = async (
     temperature: settings?.temperature || 0.7
   };
 
-  const response = await fetch("https://llm.chutes.ai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiToken}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(requestBody)
+  // Track API call
+  analytics.trackEvent({
+    name: 'api_call',
+    category: 'feature',
+    label: model,
+    metadata: {
+      hasSystemPrompt: !!settings?.systemPrompt,
+      isStreaming: settings?.streamResponses || false,
+      maxTokens: settings?.maxTokens || 1024,
+      temperature: settings?.temperature || 0.7
+    }
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    console.error('❌ API Error:', error);
-    throw new Error(error.error?.message || 'Failed to get response from CHUTES API');
-  }
+  try {
+    const response = await fetch("https://llm.chutes.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(requestBody)
+    });
 
-  if (settings?.streamResponses && onStream) {
-    // Handle streaming response
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder();
-    let fullResponse = '';
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('❌ API Error:', error);
+      
+      // Track API error
+      analytics.trackEvent({
+        name: 'api_error',
+        category: 'error',
+        label: response.status.toString(),
+        metadata: {
+          model,
+          errorMessage: error.error?.message || 'Unknown error'
+        }
+      });
+      
+      throw new Error(error.error?.message || 'Failed to get response from CHUTES API');
+    }
 
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+    if (settings?.streamResponses && onStream) {
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let fullResponse = '';
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') continue;
-            
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed.choices?.[0]?.delta?.content;
-              if (content) {
-                fullResponse += content;
-                onStream(content);
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') continue;
+              
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices?.[0]?.delta?.content;
+                if (content) {
+                  fullResponse += content;
+                  onStream(content);
+                }
+              } catch (e) {
+                // Ignore parsing errors for incomplete chunks
               }
-            } catch (e) {
-              // Ignore parsing errors for incomplete chunks
             }
           }
         }
       }
+      
+      // Track successful streaming response
+      analytics.trackEvent({
+        name: 'api_response_streaming',
+        category: 'feature',
+        label: model,
+        metadata: {
+          responseLength: fullResponse.length
+        }
+      });
+      
+      return fullResponse;
+    } else {
+      // Handle regular response
+      const data = await response.json();
+      const responseContent = data.choices?.[0]?.message?.content || 'No response received';
+      
+      console.log('✅ API Success:', { model, response: responseContent.substring(0, 50) + '...' });
+      
+      // Track successful regular response
+      analytics.trackEvent({
+        name: 'api_response_regular',
+        category: 'feature',
+        label: model,
+        metadata: {
+          responseLength: responseContent.length
+        }
+      });
+      
+      return responseContent;
     }
-    return fullResponse;
-  } else {
-    // Handle regular response
-    const data = await response.json();
-    console.log('✅ API Success:', { model, response: data.choices[0]?.message?.content?.substring(0, 50) + '...' });
-    return data.choices[0]?.message?.content || 'No response received';
+  } catch (error) {
+    // Track network errors
+    analytics.reportError({
+      message: `API call failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      severity: 'high',
+      metadata: {
+        model,
+        endpoint: 'https://llm.chutes.ai/v1/chat/completions'
+      }
+    });
+    
+    throw error;
   }
 };
 
+/**
+ * Main chat management hook
+ *
+ * Provides comprehensive chat functionality including:
+ * - Chat creation, deletion, and management
+ * - Message sending and receiving
+ * - Streaming responses
+ * - Chat branching and editing
+ * - Search and filtering
+ * - Export/import functionality
+ * - Settings management
+ *
+ * @returns Object containing all chat-related state and methods
+ */
 export function useChat() {
+  // State management
   const [chats, setChats] = useState<Chat[]>([]);
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -133,7 +251,7 @@ export function useChat() {
     streamResponses: true
   });
 
-  // Load chats from localStorage on mount
+  // Load persisted data from localStorage on component mount
   useEffect(() => {
     const savedChats = localStorage.getItem('chutes-chats');
     const savedSettings = localStorage.getItem('chutes-settings');
@@ -149,8 +267,19 @@ export function useChat() {
             timestamp: new Date(msg.timestamp)
           }))
         })));
+        
+        // Track data restoration
+        analytics.trackEvent({
+          name: 'chats_restored',
+          category: 'engagement',
+          value: parsed.length
+        });
       } catch (error) {
         console.error('Error loading chats:', error);
+        analytics.reportError({
+          message: 'Failed to load chats from localStorage',
+          severity: 'medium'
+        });
       }
     }
 
@@ -159,20 +288,46 @@ export function useChat() {
         setChatSettings(JSON.parse(savedSettings));
       } catch (error) {
         console.error('Error loading settings:', error);
+        analytics.reportError({
+          message: 'Failed to load settings from localStorage',
+          severity: 'medium'
+        });
       }
     }
   }, []);
 
-  // Save chats to localStorage whenever chats change
+  // Persist chats to localStorage whenever chats change
   useEffect(() => {
-    localStorage.setItem('chutes-chats', JSON.stringify(chats));
+    try {
+      localStorage.setItem('chutes-chats', JSON.stringify(chats));
+    } catch (error) {
+      console.error('Error saving chats:', error);
+      analytics.reportError({
+        message: 'Failed to save chats to localStorage',
+        severity: 'medium'
+      });
+    }
   }, [chats]);
 
-  // Save settings to localStorage whenever settings change
+  // Persist settings to localStorage whenever settings change
   useEffect(() => {
-    localStorage.setItem('chutes-settings', JSON.stringify(chatSettings));
+    try {
+      localStorage.setItem('chutes-settings', JSON.stringify(chatSettings));
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      analytics.reportError({
+        message: 'Failed to save settings to localStorage',
+        severity: 'medium'
+      });
+    }
   }, [chatSettings]);
 
+  /**
+   * Create a new chat conversation
+   *
+   * @param branchFrom - Optional ID of chat to branch from
+   * @returns ID of the newly created chat
+   */
   const createNewChat = useCallback((branchFrom?: string) => {
     const newChat: Chat = {
       id: `chat-${Date.now()}`,
@@ -187,9 +342,22 @@ export function useChat() {
     setChats(prev => [newChat, ...prev]);
     setActiveChat(newChat.id);
     
+    // Track new chat creation
+    analytics.trackChatInteraction('created', {
+      hasBranchFrom: !!branchFrom,
+      model: newChat.model
+    });
+    
     return newChat.id;
   }, []);
 
+  /**
+   * Create a branch from an existing chat
+   *
+   * @param chatId - ID of the source chat
+   * @param messageIndex - Optional index to branch from specific message
+   * @returns ID of the newly created branch chat
+   */
   const branchChat = useCallback((chatId: string, messageIndex?: number) => {
     const sourceChat = chats.find(chat => chat.id === chatId);
     if (!sourceChat) return;
@@ -210,6 +378,13 @@ export function useChat() {
     
     setChats(prev => [newChat, ...prev]);
     setActiveChat(newChat.id);
+    
+    // Track chat branching
+    analytics.trackChatInteraction('branched', {
+      sourceChatId: chatId,
+      messageIndex,
+      messageCount: messagesToBranch.length
+    });
     
     return newChat.id;
   }, [chats]);

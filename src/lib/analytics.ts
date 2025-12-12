@@ -6,7 +6,7 @@ export interface AnalyticsEvent {
   label?: string;
   value?: number;
   timestamp: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface PerformanceMetrics {
@@ -30,7 +30,7 @@ export interface ErrorReport {
   userAgent: string;
   userId?: string;
   sessionId: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 class AnalyticsManager {
@@ -132,7 +132,8 @@ class AnalyticsManager {
         });
         break;
       case 'first-input':
-        metrics.firstInputDelay = (entry as any).processingStart - entry.startTime;
+        const firstInputEntry = entry as PerformanceEventTiming;
+        metrics.firstInputDelay = firstInputEntry.processingStart - entry.startTime;
         this.trackEvent({
           name: 'first_input_delay',
           category: 'performance',
@@ -140,8 +141,9 @@ class AnalyticsManager {
         });
         break;
       case 'layout-shift':
-        if (!(entry as any).hadRecentInput) {
-          metrics.cumulativeLayoutShift = (entry as any).value;
+        const layoutShiftEntry = entry as unknown as { hadRecentInput: boolean; value: number };
+        if (!layoutShiftEntry.hadRecentInput) {
+          metrics.cumulativeLayoutShift = layoutShiftEntry.value;
           this.trackEvent({
             name: 'cumulative_layout_shift',
             category: 'performance',
@@ -236,7 +238,7 @@ class AnalyticsManager {
   }
 
   // Feature Usage Tracking
-  trackFeatureUsage(feature: string, action: 'used' | 'completed' | 'failed', metadata?: Record<string, any>): void {
+  trackFeatureUsage(feature: string, action: 'used' | 'completed' | 'failed', metadata?: Record<string, unknown>): void {
     this.trackEvent({
       name: `feature_${feature}_${action}`,
       category: 'feature',
@@ -245,7 +247,7 @@ class AnalyticsManager {
     });
   }
 
-  trackChatInteraction(action: string, metadata?: Record<string, any>): void {
+  trackChatInteraction(action: string, metadata?: Record<string, unknown>): void {
     this.trackEvent({
       name: `chat_${action}`,
       category: 'engagement',
@@ -253,7 +255,7 @@ class AnalyticsManager {
     });
   }
 
-  trackPWAEvent(event: string, metadata?: Record<string, any>): void {
+  trackPWAEvent(event: string, metadata?: Record<string, unknown>): void {
     this.trackEvent({
       name: `pwa_${event}`,
       category: 'pwa',
