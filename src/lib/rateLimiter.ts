@@ -5,7 +5,7 @@
  * and circuit breaker pattern for fault tolerance
  */
 
-import { ProviderId } from '@/features/models';
+import { ProviderId } from '@/infra/models';
 
 export interface RateLimitConfig {
   requestsPerMinute: number;

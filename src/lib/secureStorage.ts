@@ -134,7 +134,7 @@ class SecureStorageManager {
     const encrypted = await crypto.subtle.encrypt(
       {
         name: 'AES-GCM',
-        iv: iv
+        iv
       },
       this.encryptionKey,
       dataBuffer
@@ -171,7 +171,7 @@ class SecureStorageManager {
       const decrypted = await crypto.subtle.decrypt(
         {
           name: 'AES-GCM',
-          iv: iv
+          iv
         },
         this.encryptionKey,
         encrypted
@@ -359,7 +359,7 @@ class SecureStorageManager {
     const secureKeys = keys.filter(key => key.startsWith('chutes_secure_'));
 
     let totalSize = 0;
-    let lastModified = 0;
+    const lastModified = 0;
 
     secureKeys.forEach(key => {
       const item = localStorage.getItem(key);

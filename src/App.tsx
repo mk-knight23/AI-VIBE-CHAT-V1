@@ -1,12 +1,10 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/app/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { PWAInstaller, useServiceWorker } from "@/components/PWAInstaller";
-import { AccessibilityProvider, SkipToContent } from "@/components/AccessibilityProvider";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import { PWAInstaller, useServiceWorker } from "@/app/PWAInstaller";
+import { AccessibilityProvider, SkipToContent } from "@/app/AccessibilityProvider";
+import Index from "@/app/Index";
+import NotFound from "@/app/NotFound";
 import { useEffect } from "react";
 
 // Initialize React Query client with optimized configuration
@@ -29,7 +27,7 @@ function PWAUpdateNotification() {
   useEffect(() => {
     if (updateAvailable) {
       const shouldUpdate = window.confirm(
-        'A new version of CHUTES AI Chat v4.0 is available. Would you like to update now?'
+        'A new version of AI Chat is available. Would you like to update now?'
       );
 
       if (shouldUpdate) {
@@ -42,44 +40,37 @@ function PWAUpdateNotification() {
 }
 
 /**
- * CHUTES AI Chat v4.0 - Multi-Provider AI Platform
+ * AI Chat Application - Multi-Provider AI Platform
  * 
- * Real production app with all features:
- * - 4 AI Providers (OpenRouter, MegaLLM, AgentRouter, Routeway)
- * - 10+ AI Models with full integration
- * - Enterprise Security (AES-GCM encryption)
- * - Advanced Chat Features (markdown, reactions, file upload)
- * - Settings Dashboard with comprehensive tabs
- * - Model Comparison Mode
- * - PWA with offline support
- * - Provider health monitoring & fallback
+ * Production-ready app with:
+ * - Multiple AI Providers (OpenRouter integration)
+ * - Real-time streaming
+ * - Clean interface
+ * - PWA support
  */
 const App = () => {
   const { isSupported } = useServiceWorker();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AccessibilityProvider>
-          <SkipToContent />
-          <Toaster />
-          <Sonner />
+      <AccessibilityProvider>
+        <SkipToContent />
+        <Toaster />
 
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
 
-          {isSupported && (
-            <>
-              <PWAInstaller />
-              <PWAUpdateNotification />
-            </>
-          )}
-        </AccessibilityProvider>
-      </TooltipProvider>
+        {isSupported && (
+          <>
+            <PWAInstaller />
+            <PWAUpdateNotification />
+          </>
+        )}
+      </AccessibilityProvider>
     </QueryClientProvider>
   );
 };

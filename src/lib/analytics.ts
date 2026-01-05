@@ -340,7 +340,7 @@ class AnalyticsManager {
   // Analytics Service Integration
   private sendToAnalyticsService(event: AnalyticsEvent): void {
     // Google Analytics 4 integration
-    const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
+    const {gtag} = (window as unknown as { gtag?: (...args: unknown[]) => void });
     if (typeof gtag !== 'undefined') {
       gtag('event', event.name, {
         event_category: event.category,
