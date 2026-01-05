@@ -445,7 +445,7 @@ export const useChatStore = create<ChatStore>()(
         })),
 
       searchChats: (query) => {
-        const chats = get().chats;
+        const {chats} = get();
         if (!query.trim()) return chats;
 
         return chats.filter(chat =>

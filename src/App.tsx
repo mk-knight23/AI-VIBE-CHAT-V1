@@ -1,10 +1,10 @@
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/app/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { PWAInstaller, useServiceWorker } from "@/components/PWAInstaller";
-import { AccessibilityProvider, SkipToContent } from "@/components/AccessibilityProvider";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import { PWAInstaller, useServiceWorker } from "@/app/PWAInstaller";
+import { AccessibilityProvider, SkipToContent } from "@/app/AccessibilityProvider";
+import Index from "@/app/Index";
+import NotFound from "@/app/NotFound";
 import { useEffect } from "react";
 
 // Initialize React Query client with optimized configuration

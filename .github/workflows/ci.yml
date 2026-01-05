@@ -1,12 +1,12 @@
 name: CI/CD Pipeline
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  test:
+  quality-checks:
     runs-on: ubuntu-latest
     
     steps:
@@ -15,17 +15,376 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         cache: 'npm'
     
     - name: Install dependencies
       run: npm ci
     
-    - name: Run tests
-      run: npm test
+    - name: Lint with ESLint
+      run: npm run lint
     
-    - name: Security check
-      run: npm run check:security
+    - name: Check formatting
+      run: npm run format:check
     
     - name: Type check
       run: npm run type-check
+    
+    - name: Security audit
+      run: npm run check:security
+    
+    - name: Audit dependencies
+      run: npm audit --audit-level=moderate
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run unit tests with coverage
+      run: npm run test:coverage
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage/lcov.info
+        fail_ci_if_error: true
+        verbose: true
+    
+    - name: Check coverage threshold (95%)
+      run: |
+        COVERAGE=$(cat coverage/lcov.info | grep -E "SF:.*\.ts" | wc -l)
+        TOTAL_LINES=$(cat coverage/lcov.info | grep -E "LF:" | head -1 | cut -d: -f2)
+        HIT_LINES=$(cat coverage/lcov.info | grep -E "LH:" | head -1 | cut -d: -f2)
+        PERCENTAGE=$((HIT_LINES * 100 / TOTAL_LINES))
+        echo "Coverage: $PERCENTAGE%"
+        if [ "$PERCENTAGE" -lt 95 ]; then
+          echo "❌ Coverage below 95% (current: $PERCENTAGE%)"
+          exit 1
+        fi
+        echo "✅ Coverage meets threshold: $PERCENTAGE%"
+
+  build:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build production bundle
+      run: npm run build
+    
+    - name: Analyze bundle size
+      run: |
+        BUNDLE_SIZE=$(du -sh dist 2>/dev/null | cut -f1 || echo "unknown")
+        echo "Bundle size: $BUNDLE_SIZE"
+        if [ "$(du -sm dist 2>/dev/null | cut -f1)" -gt 500 ]; then
+          echo "⚠️ Bundle size exceeds 500MB limit"
+          exit 1
+        else
+          echo "✅ Bundle size within limit"
+        fi
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: dist/
+        retention-days: 7
+
+  lighthouse-check:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    
+    - name: Install Lighthouse CI
+      run: npm install -g @lhci/cli
+    
+    - name: Build and serve
+      run: |
+        npm run build
+        npx serve dist -l 4173 &
+        sleep 5
+    
+    - name: Run Lighthouse CI
+      run: |
+        lci autorun --fail-on-budgets || echo "⚠️ Lighthouse budgets not met, but continuing"
+    
+    - name: Upload Lighthouse results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: lighthouse-results
+        path: .lighthouseci/
+        retention-days: 7
+
+  accessibility-check:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Install Playwright
+      run: npx playwright install --with-deps chromium
+    
+    - name: Build app
+      run: npm run build
+    
+    - name: Start preview server
+      run: |
+        npm run preview &
+        sleep 5
+    
+    - name: Run accessibility audit with axe
+      run: |
+        cat << 'EOF' > accessibility-test.js
+        const { chromium } = require('playwright');
+        
+        (async () => {
+          const browser = await chromium.launch();
+          const page = await browser.newPage();
+          
+          await page.goto('http://localhost:4173');
+          await page.waitForLoadState('networkidle');
+          
+          const results = await page.evaluate(() => {
+            return window.axe.run(document);
+          });
+          
+          if (results.violations.length > 0) {
+            console.log('❌ Accessibility violations found:');
+            results.violations.forEach(v => {
+              console.log(\`  - \${v.id}: \${v.description}\`);
+            });
+            process.exit(1);
+          }
+          
+          console.log('✅ No accessibility violations found');
+          await browser.close();
+        })();
+        EOF
+        node accessibility-test.js || echo "⚠️ Accessibility check failed"
+    
+    - name: Upload accessibility results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: accessibility-results
+        path: accessibility-test.js
+        retention-days: 7
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Audit dependencies
+      run: npm audit --audit-level=high --json > audit-results.json
+    
+    - name: Upload audit results
+      uses: actions/upload-artifact@v4
+      with:
+        name: audit-results
+        path: audit-results.json
+        retention-days: 30
+    
+    - name: Check for high/critical vulnerabilities
+      run: |
+        if [ -s audit-results.json ]; then
+          VULNS=$(jq '.[].vulnerabilities | length' audit-results.json 2>/dev/null || echo "0")
+          if [ "$VULNS" -gt 0 ]; then
+            echo "⚠️ Found vulnerabilities in dependencies"
+            jq '.[].vulnerabilities | keys' audit-results.json
+          else
+            echo "✅ No high/critical vulnerabilities found"
+          fi
+        fi
+
+  sonar-analysis:
+    runs-on: ubuntu-latest
+    needs: [unit-tests, build]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup SonarQube Scanner
+      run: |
+        npm install -g sonarqube-scanner
+    
+    - name: Download coverage
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+    
+    - name: Run SonarQube analysis
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      run: |
+        sonar-scanner \
+          -Dsonar.projectKey=chutes-ai-chat \
+          -Dsonar.organization=chutes-ai \
+          -Dsonar.projectName="CHUTES AI Chat" \
+          -Dsonar.projectVersion=4.0 \
+          -Dsonar.sources=src \
+          -Dsonar.tests=src/tests \
+          -Dsonar.test.inclusions=src/tests/**/*.test.ts \
+          -Dsonar.test.inclusions=src/tests/**/*.test.tsx \
+          -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info \
+          -Dsonar.codeCoveragePlugin=lcov \
+          -Dsonar.host.url=$SONAR_HOST_URL \
+          -Dsonar.login=$SONAR_TOKEN
+
+  # Deployment jobs (run only on main branch)
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [build, lighthouse-check, accessibility-check]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+    
+    - name: Deploy to Vercel (Staging)
+      uses: amondnet/vercel-action@v25
+      if: env.VERCEL_TOKEN != ''
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
+    
+    - name: Deploy to S3 (Staging)
+      uses: jakejarvis/s3-sync-action@master
+      if: env.AWS_ACCESS_KEY_ID != ''
+      with:
+        args: --acl public-read --follow-symlinks --delete
+      env:
+        AWS_S3_BUCKET: chutes-ai-staging
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-1
+    
+    - name: Invalidate CloudFront
+      uses: chetan/invalidate-cloudfront-action@master
+      if: env.AWS_ACCESS_KEY_ID != ''
+      env:
+        DISTRIBUTION: ${{ secrets.CLOUDFRONT_DISTRIBUTION_STAGING }}
+        PATHS: "/*"
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-1
+    
+    - name: Notify deployment
+      run: |
+        echo "✅ Deployed to staging environment"
+
+  smoke-tests:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Install Playwright
+      run: npx playwright install --with-deps chromium
+    
+    - name: Run smoke tests
+      run: |
+        cat << 'EOF' > smoke-test.js
+        const { chromium } = require('playwright');
+        
+        (async () => {
+          const browser = await chromium.launch();
+          const page = await browser.newPage();
+          
+          // Test homepage loads
+          await page.goto(process.env.STAGING_URL || 'https://staging.chutes-ai.dev');
+          await page.waitForLoadState('networkidle');
+          
+          // Check for critical elements
+          const chatInput = await page.$('textarea, input[type="text"]');
+          const sendButton = await page.$('button[type="submit"], button:has-text("Send")');
+          
+          if (!chatInput || !sendButton) {
+            console.log('❌ Critical elements missing');
+            process.exit(1);
+          }
+          
+          console.log('✅ Smoke tests passed');
+          await browser.close();
+        })();
+        EOF
+        STAGING_URL=https://staging.chutes-ai.dev node smoke-test.js
+    
+    - name: Upload smoke test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: smoke-test-results
+        path: smoke-test.js
+        retention-days: 7

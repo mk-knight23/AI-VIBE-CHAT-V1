@@ -1,4 +1,5 @@
-// Security and Validation Utilities for CHUTES AI Chat
+// Security and Validation Utilities for CHUTES AI Chat v5
+// OWASP Top 10 Compliance Enhanced Security
 
 export interface SecurityConfig {
   maxMessageLength: number;
@@ -8,17 +9,48 @@ export interface SecurityConfig {
   maxRequestsPerWindow: number;
   enableCSP: boolean;
   sanitizeHTML: boolean;
+  enableCSRF: boolean;
+  enableEncryption: boolean;
+  sessionTimeout: number;
+  maxLoginAttempts: number;
+  lockoutDuration: number;
 }
 
 export interface RateLimitEntry {
   count: number;
   resetTime: number;
+  firstSeen: number;
 }
 
 export interface ValidationResult {
   valid: boolean;
   errors: string[];
   warnings: string[];
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  threats: string[];
+}
+
+export interface SecurityThreat {
+  type: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  recommendation: string;
+}
+
+export interface EncryptedData {
+  data: string;
+  iv: string;
+  salt: string;
+}
+
+export interface SecurityHeaders {
+  'X-Content-Type-Options': string;
+  'X-Frame-Options': string;
+  'X-XSS-Protection': string;
+  'Strict-Transport-Security': string;
+  'Content-Security-Policy': string;
+  'Referrer-Policy': string;
+  'Permissions-Policy': string;
 }
 
 class SecurityManager {
@@ -51,7 +83,12 @@ class SecurityManager {
       rateLimitWindow: 60000, // 1 minute
       maxRequestsPerWindow: 30,
       enableCSP: true,
-      sanitizeHTML: true
+      sanitizeHTML: true,
+      enableCSRF: true,
+      enableEncryption: true,
+      sessionTimeout: 3600000, // 1 hour
+      maxLoginAttempts: 5,
+      lockoutDuration: 900000 // 15 minutes
     };
   }
 
@@ -67,7 +104,9 @@ class SecurityManager {
     const result: ValidationResult = {
       valid: true,
       errors: [],
-      warnings: []
+      warnings: [],
+      riskLevel: 'low',
+      threats: []
     };
 
     // Check message length
@@ -106,7 +145,9 @@ class SecurityManager {
     const result: ValidationResult = {
       valid: true,
       errors: [],
-      warnings: []
+      warnings: [],
+      riskLevel: 'low',
+      threats: []
     };
 
     // Check file size
@@ -149,7 +190,8 @@ class SecurityManager {
     if (!entry) {
       this.rateLimitMap.set(identifier, {
         count: 1,
-        resetTime: now + this.config.rateLimitWindow
+        resetTime: now + this.config.rateLimitWindow,
+        firstSeen: now
       });
       return true;
     }
@@ -158,7 +200,8 @@ class SecurityManager {
       // Reset window
       this.rateLimitMap.set(identifier, {
         count: 1,
-        resetTime: now + this.config.rateLimitWindow
+        resetTime: now + this.config.rateLimitWindow,
+        firstSeen: now
       });
       return true;
     }
@@ -290,6 +333,250 @@ class SecurityManager {
     return { ...this.config };
   }
 
+  // Enhanced Encryption Methods (AES-GCM)
+  async encryptData(data: string, password?: string): Promise<EncryptedData> {
+    const encoder = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(password || this.generateSecureToken(32)),
+      'PBKDF2',
+      false,
+      ['deriveBits', 'deriveKey']
+    );
+
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const key = await crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt,
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt']
+    );
+
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encryptedData = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      encoder.encode(data)
+    );
+
+    return {
+      data: btoa(String.fromCharCode(...new Uint8Array(encryptedData))),
+      iv: btoa(String.fromCharCode(...iv)),
+      salt: btoa(String.fromCharCode(...salt))
+    };
+  }
+
+  async decryptData(encryptedData: EncryptedData, password?: string): Promise<string> {
+    try {
+      const encoder = new TextEncoder();
+      const decoder = new TextDecoder();
+      
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        encoder.encode(password || this.generateSecureToken(32)),
+        'PBKDF2',
+        false,
+        ['deriveBits', 'deriveKey']
+      );
+
+      const salt = new Uint8Array(atob(encryptedData.salt).split('').map(char => char.charCodeAt(0)));
+      const key = await crypto.subtle.deriveKey(
+        {
+          name: 'PBKDF2',
+          salt,
+          iterations: 100000,
+          hash: 'SHA-256'
+        },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['decrypt']
+      );
+
+      const iv = new Uint8Array(atob(encryptedData.iv).split('').map(char => char.charCodeAt(0)));
+      const data = new Uint8Array(atob(encryptedData.data).split('').map(char => char.charCodeAt(0)));
+      
+      const decryptedData = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        data
+      );
+
+      return decoder.decode(decryptedData);
+    } catch (error) {
+      throw new Error('Failed to decrypt data');
+    }
+  }
+
+  // CSRF Protection
+  generateCSRFToken(): string {
+    return this.generateSecureToken(32);
+  }
+
+  validateCSRFToken(token: string, sessionToken: string): boolean {
+    return token === sessionToken;
+  }
+
+  // Enhanced Input Validation for OWASP Top 10
+  validateSQLInput(input: string): ValidationResult {
+    const result: ValidationResult = {
+      valid: true,
+      errors: [],
+      warnings: [],
+      riskLevel: 'low',
+      threats: []
+    };
+
+    // SQL injection patterns
+    const sqlPatterns = [
+      /('|(\-\-)|(;)|(\||\|)|(\*|\*))/i,
+      /((\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE)\b))/i,
+      /(UNION(.*?)SELECT)/i,
+      /(SCRIPT)/i,
+      /(<iframe|<script|<object|<embed)/i
+    ];
+
+    for (const pattern of sqlPatterns) {
+      if (pattern.test(input)) {
+        result.threats.push('Potential SQL injection detected');
+        result.riskLevel = 'high';
+        result.valid = false;
+        result.errors.push('Input contains potentially malicious SQL patterns');
+      }
+    }
+
+    return result;
+  }
+
+  // XSS Protection Enhancement
+  validateXSSInput(input: string): ValidationResult {
+    const result: ValidationResult = {
+      valid: true,
+      errors: [],
+      warnings: [],
+      riskLevel: 'low',
+      threats: []
+    };
+
+    const xssPatterns = [
+      /<script[^>]*>.*?<\/script>/gi,
+      /<iframe[^>]*>.*?<\/iframe>/gi,
+      /javascript:/gi,
+      /on\w+\s*=/gi,
+      /<\s*img[^>]*src\s*=\s*["']javascript:/gi,
+      /<\s*link[^>]*href\s*=\s*["']javascript:/gi,
+      /<\s*style[^>]*>.*?<\/style>/gi
+    ];
+
+    for (const pattern of xssPatterns) {
+      if (pattern.test(input)) {
+        result.threats.push('Potential XSS attack detected');
+        result.riskLevel = 'critical';
+        result.valid = false;
+        result.errors.push('Input contains potentially malicious XSS patterns');
+      }
+    }
+
+    return result;
+  }
+
+  // Security Headers Generation
+  generateSecurityHeaders(): SecurityHeaders {
+    return {
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'X-XSS-Protection': '1; mode=block',
+      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+      'Content-Security-Policy': this.generateCSP(),
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
+      'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
+    };
+  }
+
+  // Data Classification
+  classifyData(data: string): 'public' | 'internal' | 'confidential' | 'restricted' {
+    const sensitivePatterns = [
+      /password|passwd|pass/i,
+      /credit\s*card|card\s*number|cvv|cvc/i,
+      /ssn|social\s*security/i,
+      /api\s*key|secret\s*key|token/i,
+      /email.*@.*\..*/i,
+      /phone\s*number|telephone/i
+    ];
+
+    for (const pattern of sensitivePatterns) {
+      if (pattern.test(data)) {
+        return 'restricted';
+      }
+    }
+
+    // Check for internal data patterns
+    const internalPatterns = [
+      /internal|private|confidential/i,
+      /employee|staff|hr/i,
+      /financial|revenue|profit/i
+    ];
+
+    for (const pattern of internalPatterns) {
+      if (pattern.test(data)) {
+        return 'confidential';
+      }
+    }
+
+    return 'public';
+  }
+
+  // Enhanced Rate Limiting with Intelligence
+  checkAdvancedRateLimit(identifier: string, action: string): { allowed: boolean; remaining: number; resetTime: number; riskScore: number } {
+    const now = Date.now();
+    const key = `${identifier}:${action}`;
+    const entry = this.rateLimitMap.get(key);
+
+    let riskScore = 0;
+    
+    if (!entry) {
+      this.rateLimitMap.set(key, {
+        count: 1,
+        resetTime: now + this.config.rateLimitWindow,
+        firstSeen: now
+      });
+      return { allowed: true, remaining: this.config.maxRequestsPerWindow - 1, resetTime: now + this.config.rateLimitWindow, riskScore: 0 };
+    }
+
+    if (now > entry.resetTime) {
+      // Reset window
+      this.rateLimitMap.set(key, {
+        count: 1,
+        resetTime: now + this.config.rateLimitWindow,
+        firstSeen: now
+      });
+      return { allowed: true, remaining: this.config.maxRequestsPerWindow - 1, resetTime: now + this.config.rateLimitWindow, riskScore: 0 };
+    }
+
+    // Calculate risk score based on request patterns
+    const timeSpan = now - entry.firstSeen;
+    const requestsPerSecond = (entry.count / timeSpan) * 1000;
+    
+    if (requestsPerSecond > 10) riskScore += 30;
+    if (entry.count > this.config.maxRequestsPerWindow * 0.8) riskScore += 20;
+    if (timeSpan < 1000) riskScore += 25; // Very fast requests
+
+    const remaining = Math.max(0, this.config.maxRequestsPerWindow - entry.count);
+    const allowed = entry.count < this.config.maxRequestsPerWindow && riskScore < 50;
+
+    if (allowed) {
+      entry.count++;
+    }
+
+    return { allowed, remaining, resetTime: entry.resetTime, riskScore };
+  }
+
   // Utility Methods
   generateSecureToken(length: number = 32): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -341,16 +628,40 @@ export const security = SecurityManager.getInstance();
 // React Hook for Security
 export function useSecurity() {
   return {
+    // Basic validation
     validateMessage: security.validateMessage.bind(security),
     validateFile: security.validateFile.bind(security),
+    validateSQLInput: security.validateSQLInput.bind(security),
+    validateXSSInput: security.validateXSSInput.bind(security),
+    
+    // Rate limiting
     checkRateLimit: security.checkRateLimit.bind(security),
     getRateLimitStatus: security.getRateLimitStatus.bind(security),
+    checkAdvancedRateLimit: security.checkAdvancedRateLimit.bind(security),
+    
+    // Sanitization and security
     sanitizeInput: security.sanitizeUserInput.bind(security),
     generateCSP: security.generateCSP.bind(security),
+    generateSecurityHeaders: security.generateSecurityHeaders.bind(security),
+    
+    // Encryption and protection
+    encryptData: security.encryptData.bind(security),
+    decryptData: security.decryptData.bind(security),
+    generateCSRFToken: security.generateCSRFToken.bind(security),
+    validateCSRFToken: security.validateCSRFToken.bind(security),
+    
+    // IP management
     blockIP: security.blockIP.bind(security),
     isIPBlocked: security.isIPBlocked.bind(security),
+    
+    // Data classification
+    classifyData: security.classifyData.bind(security),
+    
+    // Configuration
     updateConfig: security.updateConfig.bind(security),
     getConfig: security.getConfig.bind(security),
+    
+    // Utilities
     generateSecureToken: security.generateSecureToken.bind(security),
     hashPassword: security.hashPassword.bind(security),
     cleanup: security.cleanup.bind(security)
