@@ -1,6 +1,6 @@
 # 🔥 CHUTES AI Chat v4.0 - Multi-Provider AI Chat Platform
 
-> Production-ready AI chat application with 10+ models across 4 providers (OpenRouter, MegaLLM, Agent Router, Routeway), enterprise security, comprehensive testing, and advanced features
+> Production-ready AI chat application with 10+ models g across 4 providers (OpenRouter, MegaLLM, Agent Router, Routeway), enterprise security, comprehensive testing, and advanced features
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Visit_App-blue?style=for-the-badge&logo=react)](https://chutes-ai-chat.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-mk--knight23%2Fgpt--clone--app-black?style=for-the-badge&logo=github)](https://github.com/mk-knight23/gpt-clone-app)
