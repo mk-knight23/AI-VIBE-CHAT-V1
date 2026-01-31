@@ -1,5 +1,5 @@
 import process from 'node:process';globalThis._importMeta_={url:import.meta.url,env:process.env};import { tmpdir } from 'node:os';
-import { defineEventHandler, handleCacheHeaders, splitCookiesString, createEvent, fetchWithEvent, isEvent, eventHandler, setHeaders, sendRedirect, proxyRequest, getRequestHeader, setResponseHeaders, setResponseStatus, send, getRequestHeaders, setResponseHeader, appendResponseHeader, getRequestURL, getResponseHeader, removeResponseHeader, createError, getQuery as getQuery$1, readBody, createApp, createRouter as createRouter$1, toNodeListener, lazyEventHandler, getResponseStatus, getRouterParam, getResponseStatusText } from 'file:///Users/mkazi/AI-VIBE-ECOSYSTEM%20ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/node_modules/h3/dist/index.mjs';
+import { defineEventHandler, handleCacheHeaders, splitCookiesString, createEvent, fetchWithEvent, isEvent, eventHandler, setHeaders, sendRedirect, proxyRequest, getRequestHeader, setResponseHeaders, setResponseStatus, send, getRequestHeaders, setResponseHeader, appendResponseHeader, getRequestURL, getResponseHeader, removeResponseHeader, createError, getQuery as getQuery$1, readBody, createApp, createRouter as createRouter$1, toNodeListener, lazyEventHandler, getResponseStatus, getRouterParam, getHeader, setHeader, sendStream, getResponseStatusText } from 'file:///Users/mkazi/AI-VIBE-ECOSYSTEM%20ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/node_modules/h3/dist/index.mjs';
 import { Server } from 'node:http';
 import { resolve, dirname, join } from 'node:path';
 import nodeCrypto from 'node:crypto';
@@ -2159,22 +2159,7 @@ _f4nHDlNbKy9WZDKxWwS2Pqc3tgp2k3UGP3PtbuxRL0,
 _QIOSN1dB1lmBNSKg9scQv8ML25ZoBNS4pIVfOe4kk3s
 ];
 
-const assets = {
-  "/index.mjs": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": "\"1a94f-Q118wrN5sETNArhYGLMsQhaDoOc\"",
-    "mtime": "2026-01-31T13:56:32.332Z",
-    "size": 108879,
-    "path": "index.mjs"
-  },
-  "/index.mjs.map": {
-    "type": "application/json",
-    "etag": "\"6a395-sWe7Rk48jnH9EUa7EI2bnyDtcBg\"",
-    "mtime": "2026-01-31T13:56:32.331Z",
-    "size": 435093,
-    "path": "index.mjs.map"
-  }
-};
+const assets = {};
 
 function readAsset (id) {
   const serverDir = dirname$1(fileURLToPath(globalThis._importMeta_.url));
@@ -2623,10 +2608,18 @@ async function getIslandContext(event) {
 	return ctx;
 }
 
+const _lazy_DMsite = () => Promise.resolve().then(function () { return chat_post$1; });
+const _lazy_OAm0K3 = () => Promise.resolve().then(function () { return providers_get$1; });
+const _lazy_16V0Bq = () => Promise.resolve().then(function () { return health_get$1; });
+const _lazy_04qTlL = () => Promise.resolve().then(function () { return models_get$1; });
 const _lazy_EdgjuO = () => Promise.resolve().then(function () { return renderer$1; });
 
 const handlers = [
   { route: '', handler: _zpFvVI, lazy: false, middleware: true, method: undefined },
+  { route: '/api/chat', handler: _lazy_DMsite, lazy: true, middleware: false, method: "post" },
+  { route: '/api/providers', handler: _lazy_OAm0K3, lazy: true, middleware: false, method: "get" },
+  { route: '/api/providers/:provider/health', handler: _lazy_16V0Bq, lazy: true, middleware: false, method: "get" },
+  { route: '/api/providers/:provider/models', handler: _lazy_04qTlL, lazy: true, middleware: false, method: "get" },
   { route: '/__nuxt_error', handler: _lazy_EdgjuO, lazy: true, middleware: false, method: undefined },
   { route: '/__nuxt_island/**', handler: _SxA8c9, lazy: false, middleware: false, method: undefined },
   { route: '/**', handler: _lazy_EdgjuO, lazy: true, middleware: false, method: undefined }
@@ -2967,6 +2960,1770 @@ const styles = {};
 const styles$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
   default: styles
+}, Symbol.toStringTag, { value: 'Module' }));
+
+class ProviderError extends Error {
+  constructor(message, code, type, retryable = false, statusCode) {
+    super(message);
+    this.code = code;
+    this.type = type;
+    this.retryable = retryable;
+    this.statusCode = statusCode;
+    this.name = "ProviderError";
+  }
+}
+class RateLimitError extends ProviderError {
+  constructor(message, resetTime) {
+    super(message, "rate_limit_exceeded", "rate_limit", true);
+    this.resetTime = resetTime;
+    this.name = "RateLimitError";
+  }
+}
+class AuthError extends ProviderError {
+  constructor(message) {
+    super(message, "authentication_failed", "auth", false);
+    this.name = "AuthError";
+  }
+}
+
+var __defProp$5 = Object.defineProperty;
+var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$5 = (obj, key, value) => __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
+const DEFAULT_RETRY_CONFIG$3 = {
+  maxAttempts: 3,
+  baseDelay: 1e3,
+  maxDelay: 1e4,
+  backoffFactor: 2,
+  jitter: true
+};
+class OpenRouterAdapter {
+  constructor(apiKey, retryConfig = {}) {
+    __publicField$5(this, "providerId", "openrouter");
+    __publicField$5(this, "baseUrl", "https://openrouter.ai/api/v1");
+    __publicField$5(this, "apiKey");
+    __publicField$5(this, "retryConfig");
+    this.apiKey = apiKey || this.getApiKey();
+    this.retryConfig = { ...DEFAULT_RETRY_CONFIG$3, ...retryConfig };
+  }
+  getApiKey() {
+    const key = process.env.NUXT_OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY;
+    if (!key) {
+      throw new AuthError("OpenRouter API key not found. Please set NUXT_OPENROUTER_API_KEY environment variable.");
+    }
+    return key;
+  }
+  async models() {
+    var _a;
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      });
+      if (!response.ok) {
+        throw new ProviderError(
+          `Failed to fetch models: ${response.statusText}`,
+          "models_fetch_failed",
+          "server",
+          true,
+          response.status
+        );
+      }
+      const data = await response.json();
+      return ((_a = data.data) == null ? void 0 : _a.map((model) => model.id)) || [];
+    } catch (error) {
+      if (error instanceof ProviderError) throw error;
+      throw new ProviderError(
+        `Network error fetching models: ${error instanceof Error ? error.message : "Unknown error"}`,
+        "network_error",
+        "network",
+        true
+      );
+    }
+  }
+  async request(params) {
+    return this.withRetry(async () => {
+      const openRouterRequest = this.transformRequest(params);
+      const response = await this.makeRequest("/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(openRouterRequest)
+      });
+      if (!response.ok) {
+        await this.handleErrorResponse(response);
+      }
+      const data = await response.json();
+      return this.transformResponse(data, params.model);
+    });
+  }
+  async stream(params, onChunk) {
+    return this.withRetry(async () => {
+      var _a, _b, _c, _d;
+      const openRouterRequest = {
+        ...this.transformRequest(params),
+        stream: true
+      };
+      const response = await this.makeRequest("/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(openRouterRequest)
+      });
+      if (!response.ok) {
+        await this.handleErrorResponse(response);
+        return;
+      }
+      const reader = (_a = response.body) == null ? void 0 : _a.getReader();
+      if (!reader) {
+        throw new ProviderError(
+          "Response body is not readable",
+          "stream_error",
+          "server",
+          true
+        );
+      }
+      const decoder = new TextDecoder();
+      let buffer = "";
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") continue;
+              try {
+                const parsed = JSON.parse(data);
+                const content = (_d = (_c = (_b = parsed.choices) == null ? void 0 : _b[0]) == null ? void 0 : _c.delta) == null ? void 0 : _d.content;
+                if (content) {
+                  onChunk(content);
+                }
+              } catch (e) {
+                continue;
+              }
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
+    });
+  }
+  async healthCheck() {
+    const startTime = Date.now();
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      }, 5e3);
+      const latency = Date.now() - startTime;
+      if (!response.ok) {
+        return {
+          status: "unhealthy",
+          latency,
+          lastChecked: /* @__PURE__ */ new Date(),
+          error: `HTTP ${response.status}: ${response.statusText}`
+        };
+      }
+      const remaining = response.headers.get("x-ratelimit-remaining");
+      const resetTime = response.headers.get("x-ratelimit-reset");
+      return {
+        status: "healthy",
+        latency,
+        lastChecked: /* @__PURE__ */ new Date(),
+        rateLimit: remaining ? {
+          remaining: parseInt(remaining),
+          resetTime: resetTime ? parseInt(resetTime) * 1e3 : void 0
+        } : void 0
+      };
+    } catch (error) {
+      return {
+        status: "unhealthy",
+        latency: Date.now() - startTime,
+        lastChecked: /* @__PURE__ */ new Date(),
+        error: error instanceof Error ? error.message : "Unknown error"
+      };
+    }
+  }
+  async validateApiKey() {
+    try {
+      const response = await this.makeRequest("/auth/key", {
+        method: "GET"
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
+  async getRateLimit() {
+    try {
+      const response = await this.makeRequest("/auth/key", {
+        method: "GET"
+      });
+      const remaining = response.headers.get("x-ratelimit-remaining");
+      const resetTime = response.headers.get("x-ratelimit-reset");
+      return {
+        remaining: remaining ? parseInt(remaining) : 0,
+        resetTime: resetTime ? parseInt(resetTime) * 1e3 : void 0
+      };
+    } catch {
+      return { remaining: 0 };
+    }
+  }
+  supportsStreaming() {
+    return true;
+  }
+  supportsAttachments() {
+    return true;
+  }
+  transformRequest(params) {
+    var _a, _b, _c, _d, _e;
+    const messages = params.messages.map((msg) => {
+      var _a2;
+      return {
+        role: msg.role,
+        content: ((_a2 = msg.attachments) == null ? void 0 : _a2.length) ? [
+          { type: "text", text: msg.content },
+          ...msg.attachments.map((att) => ({
+            type: att.type === "image" ? "image_url" : "text",
+            image_url: att.type === "image" ? { url: att.data || att.url } : void 0,
+            text: att.type !== "image" ? att.data || att.name : void 0
+          }))
+        ] : msg.content
+      };
+    });
+    return {
+      model: params.model || "openai/gpt-4o-mini",
+      // default fallback
+      messages,
+      temperature: (_a = params.temperature) != null ? _a : 0.7,
+      max_tokens: (_b = params.maxTokens) != null ? _b : 1024,
+      top_p: (_c = params.topP) != null ? _c : 0.9,
+      frequency_penalty: (_d = params.frequencyPenalty) != null ? _d : 0,
+      presence_penalty: (_e = params.presencePenalty) != null ? _e : 0,
+      stream: false
+      // handled separately in stream method
+    };
+  }
+  transformResponse(data, requestedModel) {
+    var _a, _b;
+    const choice = (_a = data.choices) == null ? void 0 : _a[0];
+    if (!choice) {
+      throw new ProviderError(
+        "Invalid response format from OpenRouter",
+        "invalid_response",
+        "server",
+        false
+      );
+    }
+    const usage = data.usage;
+    return {
+      text: ((_b = choice.message) == null ? void 0 : _b.content) || "",
+      tokens: usage ? {
+        input: usage.prompt_tokens || 0,
+        output: usage.completion_tokens || 0,
+        total: usage.total_tokens || 0
+      } : void 0,
+      metadata: {
+        model: data.model || requestedModel || "unknown",
+        provider: "openrouter",
+        finishReason: choice.finish_reason,
+        usage: data.usage
+      }
+    };
+  }
+  async handleErrorResponse(response) {
+    var _a, _b;
+    let errorData = {};
+    try {
+      errorData = await response.json();
+    } catch {
+    }
+    const message = ((_a = errorData.error) == null ? void 0 : _a.message) || response.statusText;
+    const code = ((_b = errorData.error) == null ? void 0 : _b.code) || `http_${response.status}`;
+    if (response.status === 401 || response.status === 403) {
+      throw new AuthError(message);
+    }
+    if (response.status === 429) {
+      const resetTime = response.headers.get("retry-after");
+      throw new RateLimitError(message, resetTime ? parseInt(resetTime) * 1e3 : void 0);
+    }
+    if (response.status >= 500) {
+      throw new ProviderError(message, code, "server", true, response.status);
+    }
+    throw new ProviderError(message, code, "unknown", false, response.status);
+  }
+  async makeRequest(endpoint, options, timeout) {
+    const url = `${this.baseUrl}${endpoint}`;
+    const referer = process.env.NUXT_PUBLIC_APP_URL || "https://chutes-ai.dev";
+    const fetchOptions = {
+      ...options,
+      headers: {
+        "Authorization": `Bearer ${this.apiKey}`,
+        "HTTP-Referer": referer,
+        "X-Title": "CHUTES AI Chat v4",
+        ...options.headers
+      }
+    };
+    if (timeout) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      fetchOptions.signal = controller.signal;
+      try {
+        const response = await fetch(url, fetchOptions);
+        clearTimeout(timeoutId);
+        return response;
+      } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+      }
+    }
+    return fetch(url, fetchOptions);
+  }
+  async withRetry(operation) {
+    let lastError;
+    for (let attempt = 1; attempt <= this.retryConfig.maxAttempts; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error;
+        if (error instanceof ProviderError && !error.retryable) {
+          throw error;
+        }
+        if (attempt === this.retryConfig.maxAttempts) {
+          break;
+        }
+        const baseDelay = this.retryConfig.baseDelay * Math.pow(this.retryConfig.backoffFactor, attempt - 1);
+        const jitter = this.retryConfig.jitter ? Math.random() * 0.1 * baseDelay : 0;
+        const delay = Math.min(baseDelay + jitter, this.retryConfig.maxDelay);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+    throw lastError;
+  }
+}
+
+var __defProp$4 = Object.defineProperty;
+var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$4 = (obj, key, value) => __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
+const DEFAULT_RETRY_CONFIG$2 = {
+  maxAttempts: 3,
+  baseDelay: 1e3,
+  maxDelay: 1e4,
+  backoffFactor: 2,
+  jitter: true
+};
+class MegaLLMAdapter {
+  constructor(apiKey, retryConfig = {}) {
+    __publicField$4(this, "providerId", "megallm");
+    __publicField$4(this, "baseUrl", "https://ai.megallm.io/v1");
+    __publicField$4(this, "apiKey");
+    __publicField$4(this, "retryConfig");
+    this.apiKey = apiKey || this.getApiKey();
+    this.retryConfig = { ...DEFAULT_RETRY_CONFIG$2, ...retryConfig };
+  }
+  getApiKey() {
+    const key = process.env.NUXT_MEGALLM_API_KEY || process.env.MEGALLM_API_KEY;
+    if (!key) {
+      throw new AuthError("MegaLLM API key not found. Please set NUXT_MEGALLM_API_KEY environment variable.");
+    }
+    return key;
+  }
+  async models() {
+    var _a;
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      });
+      if (!response.ok) {
+        throw new ProviderError(
+          `Failed to fetch models: ${response.statusText}`,
+          "models_fetch_failed",
+          "server",
+          true,
+          response.status
+        );
+      }
+      const data = await response.json();
+      return ((_a = data.data) == null ? void 0 : _a.map((model) => model.id)) || [];
+    } catch (error) {
+      if (error instanceof ProviderError) throw error;
+      throw new ProviderError(
+        `Network error fetching models: ${error instanceof Error ? error.message : "Unknown error"}`,
+        "network_error",
+        "network",
+        true
+      );
+    }
+  }
+  async request(params) {
+    return this.withRetry(async () => {
+      const megaLLMRequest = this.transformRequest(params);
+      const response = await this.makeRequest("/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(megaLLMRequest)
+      });
+      if (!response.ok) {
+        await this.handleErrorResponse(response);
+      }
+      const data = await response.json();
+      return this.transformResponse(data, params.model);
+    });
+  }
+  async stream(params, onChunk) {
+    return this.withRetry(async () => {
+      var _a, _b, _c, _d;
+      const megaLLMRequest = {
+        ...this.transformRequest(params),
+        stream: true
+      };
+      const response = await this.makeRequest("/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(megaLLMRequest)
+      });
+      if (!response.ok) {
+        await this.handleErrorResponse(response);
+        return;
+      }
+      const reader = (_a = response.body) == null ? void 0 : _a.getReader();
+      if (!reader) {
+        throw new ProviderError(
+          "Response body is not readable",
+          "stream_error",
+          "server",
+          true
+        );
+      }
+      const decoder = new TextDecoder();
+      let buffer = "";
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") continue;
+              try {
+                const parsed = JSON.parse(data);
+                const content = (_d = (_c = (_b = parsed.choices) == null ? void 0 : _b[0]) == null ? void 0 : _c.delta) == null ? void 0 : _d.content;
+                if (content) {
+                  onChunk(content);
+                }
+              } catch (e) {
+                continue;
+              }
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
+    });
+  }
+  async healthCheck() {
+    const startTime = Date.now();
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      }, 5e3);
+      const latency = Date.now() - startTime;
+      if (!response.ok) {
+        return {
+          status: "unhealthy",
+          latency,
+          lastChecked: /* @__PURE__ */ new Date(),
+          error: `HTTP ${response.status}: ${response.statusText}`
+        };
+      }
+      const remaining = response.headers.get("x-ratelimit-remaining");
+      const resetTime = response.headers.get("x-ratelimit-reset");
+      return {
+        status: "healthy",
+        latency,
+        lastChecked: /* @__PURE__ */ new Date(),
+        rateLimit: remaining ? {
+          remaining: parseInt(remaining),
+          resetTime: resetTime ? parseInt(resetTime) * 1e3 : void 0
+        } : void 0
+      };
+    } catch (error) {
+      return {
+        status: "unhealthy",
+        latency: Date.now() - startTime,
+        lastChecked: /* @__PURE__ */ new Date(),
+        error: error instanceof Error ? error.message : "Unknown error"
+      };
+    }
+  }
+  async validateApiKey() {
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
+  async getRateLimit() {
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      });
+      const remaining = response.headers.get("x-ratelimit-remaining");
+      const resetTime = response.headers.get("x-ratelimit-reset");
+      return {
+        remaining: remaining ? parseInt(remaining) : 0,
+        resetTime: resetTime ? parseInt(resetTime) * 1e3 : void 0
+      };
+    } catch {
+      return { remaining: 0 };
+    }
+  }
+  supportsStreaming() {
+    return true;
+  }
+  supportsAttachments() {
+    return false;
+  }
+  transformRequest(params) {
+    var _a, _b, _c, _d, _e;
+    const messages = params.messages.map((msg) => ({
+      role: msg.role,
+      content: msg.content
+      // MegaLLM may not support attachments
+    }));
+    return {
+      model: params.model || "gpt-3.5-turbo",
+      // default fallback
+      messages,
+      temperature: (_a = params.temperature) != null ? _a : 0.7,
+      max_tokens: (_b = params.maxTokens) != null ? _b : 1024,
+      top_p: (_c = params.topP) != null ? _c : 0.9,
+      frequency_penalty: (_d = params.frequencyPenalty) != null ? _d : 0,
+      presence_penalty: (_e = params.presencePenalty) != null ? _e : 0,
+      stream: false
+      // handled separately in stream method
+    };
+  }
+  transformResponse(data, requestedModel) {
+    var _a, _b;
+    const choice = (_a = data.choices) == null ? void 0 : _a[0];
+    if (!choice) {
+      throw new ProviderError(
+        "Invalid response format from MegaLLM",
+        "invalid_response",
+        "server",
+        false
+      );
+    }
+    const usage = data.usage;
+    return {
+      text: ((_b = choice.message) == null ? void 0 : _b.content) || "",
+      tokens: usage ? {
+        input: usage.prompt_tokens || 0,
+        output: usage.completion_tokens || 0,
+        total: usage.total_tokens || 0
+      } : void 0,
+      metadata: {
+        model: data.model || requestedModel || "unknown",
+        provider: "megallm",
+        finishReason: choice.finish_reason,
+        usage: data.usage
+      }
+    };
+  }
+  async handleErrorResponse(response) {
+    var _a, _b;
+    let errorData = {};
+    try {
+      errorData = await response.json();
+    } catch {
+    }
+    const message = ((_a = errorData.error) == null ? void 0 : _a.message) || response.statusText;
+    const code = ((_b = errorData.error) == null ? void 0 : _b.code) || `http_${response.status}`;
+    if (response.status === 401 || response.status === 403) {
+      throw new AuthError(message);
+    }
+    if (response.status === 429) {
+      const resetTime = response.headers.get("retry-after");
+      throw new RateLimitError(message, resetTime ? parseInt(resetTime) * 1e3 : void 0);
+    }
+    if (response.status >= 500) {
+      throw new ProviderError(message, code, "server", true, response.status);
+    }
+    throw new ProviderError(message, code, "unknown", false, response.status);
+  }
+  async makeRequest(endpoint, options, timeout) {
+    const url = `${this.baseUrl}${endpoint}`;
+    const fetchOptions = {
+      ...options,
+      headers: {
+        "Authorization": `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
+        ...options.headers
+      }
+    };
+    if (timeout) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      fetchOptions.signal = controller.signal;
+      try {
+        const response = await fetch(url, fetchOptions);
+        clearTimeout(timeoutId);
+        return response;
+      } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+      }
+    }
+    return fetch(url, fetchOptions);
+  }
+  async withRetry(operation) {
+    let lastError;
+    for (let attempt = 1; attempt <= this.retryConfig.maxAttempts; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error;
+        if (error instanceof ProviderError && !error.retryable) {
+          throw error;
+        }
+        if (attempt === this.retryConfig.maxAttempts) {
+          break;
+        }
+        const baseDelay = this.retryConfig.baseDelay * Math.pow(this.retryConfig.backoffFactor, attempt - 1);
+        const jitter = this.retryConfig.jitter ? Math.random() * 0.1 * baseDelay : 0;
+        const delay = Math.min(baseDelay + jitter, this.retryConfig.maxDelay);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+    throw lastError;
+  }
+}
+
+var __defProp$3 = Object.defineProperty;
+var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$3 = (obj, key, value) => __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
+const DEFAULT_RETRY_CONFIG$1 = {
+  maxAttempts: 3,
+  baseDelay: 1e3,
+  maxDelay: 1e4,
+  backoffFactor: 2,
+  jitter: true
+};
+class AgentRouterAdapter {
+  constructor(apiKey, retryConfig = {}) {
+    __publicField$3(this, "providerId", "agentrouter");
+    __publicField$3(this, "baseUrl", "https://agentrouter.org/v1");
+    __publicField$3(this, "apiKey");
+    __publicField$3(this, "retryConfig");
+    this.apiKey = apiKey || this.getApiKey();
+    this.retryConfig = { ...DEFAULT_RETRY_CONFIG$1, ...retryConfig };
+  }
+  getApiKey() {
+    const key = process.env.NUXT_AGENTROUTER_API_KEY || process.env.AGENTROUTER_API_KEY;
+    if (!key) {
+      throw new AuthError("Agent Router API key not found. Please set NUXT_AGENTROUTER_API_KEY environment variable.");
+    }
+    return key;
+  }
+  async models() {
+    var _a;
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      });
+      if (!response.ok) {
+        throw new ProviderError(
+          `Failed to fetch models: ${response.statusText}`,
+          "models_fetch_failed",
+          "server",
+          true,
+          response.status
+        );
+      }
+      const data = await response.json();
+      return ((_a = data.data) == null ? void 0 : _a.map((model) => model.id)) || [];
+    } catch (error) {
+      if (error instanceof ProviderError) throw error;
+      throw new ProviderError(
+        `Network error fetching models: ${error instanceof Error ? error.message : "Unknown error"}`,
+        "network_error",
+        "network",
+        true
+      );
+    }
+  }
+  async request(params) {
+    return this.withRetry(async () => {
+      const agentRouterRequest = this.transformRequest(params);
+      const response = await this.makeRequest("/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(agentRouterRequest)
+      });
+      if (!response.ok) {
+        await this.handleErrorResponse(response);
+      }
+      const data = await response.json();
+      return this.transformResponse(data, params.model);
+    });
+  }
+  async stream(params, onChunk) {
+    return this.withRetry(async () => {
+      var _a, _b, _c, _d;
+      const agentRouterRequest = {
+        ...this.transformRequest(params),
+        stream: true
+      };
+      const response = await this.makeRequest("/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(agentRouterRequest)
+      });
+      if (!response.ok) {
+        await this.handleErrorResponse(response);
+        return;
+      }
+      const reader = (_a = response.body) == null ? void 0 : _a.getReader();
+      if (!reader) {
+        throw new ProviderError(
+          "Response body is not readable",
+          "stream_error",
+          "server",
+          true
+        );
+      }
+      const decoder = new TextDecoder();
+      let buffer = "";
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") continue;
+              try {
+                const parsed = JSON.parse(data);
+                const content = (_d = (_c = (_b = parsed.choices) == null ? void 0 : _b[0]) == null ? void 0 : _c.delta) == null ? void 0 : _d.content;
+                if (content) {
+                  onChunk(content);
+                }
+              } catch (e) {
+                continue;
+              }
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
+    });
+  }
+  async healthCheck() {
+    const startTime = Date.now();
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      }, 5e3);
+      const latency = Date.now() - startTime;
+      if (!response.ok) {
+        return {
+          status: "unhealthy",
+          latency,
+          lastChecked: /* @__PURE__ */ new Date(),
+          error: `HTTP ${response.status}: ${response.statusText}`
+        };
+      }
+      const remaining = response.headers.get("x-ratelimit-remaining");
+      const resetTime = response.headers.get("x-ratelimit-reset");
+      return {
+        status: "healthy",
+        latency,
+        lastChecked: /* @__PURE__ */ new Date(),
+        rateLimit: remaining ? {
+          remaining: parseInt(remaining),
+          resetTime: resetTime ? parseInt(resetTime) * 1e3 : void 0
+        } : void 0
+      };
+    } catch (error) {
+      return {
+        status: "unhealthy",
+        latency: Date.now() - startTime,
+        lastChecked: /* @__PURE__ */ new Date(),
+        error: error instanceof Error ? error.message : "Unknown error"
+      };
+    }
+  }
+  async validateApiKey() {
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
+  async getRateLimit() {
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      });
+      const remaining = response.headers.get("x-ratelimit-remaining");
+      const resetTime = response.headers.get("x-ratelimit-reset");
+      return {
+        remaining: remaining ? parseInt(remaining) : 0,
+        resetTime: resetTime ? parseInt(resetTime) * 1e3 : void 0
+      };
+    } catch {
+      return { remaining: 0 };
+    }
+  }
+  supportsStreaming() {
+    return true;
+  }
+  supportsAttachments() {
+    return false;
+  }
+  transformRequest(params) {
+    var _a, _b, _c, _d, _e;
+    const messages = params.messages.map((msg) => ({
+      role: msg.role,
+      content: msg.content
+      // Agent Router may not support attachments
+    }));
+    return {
+      model: params.model || "gpt-3.5-turbo",
+      // default fallback
+      messages,
+      temperature: (_a = params.temperature) != null ? _a : 0.7,
+      max_tokens: (_b = params.maxTokens) != null ? _b : 1024,
+      top_p: (_c = params.topP) != null ? _c : 0.9,
+      frequency_penalty: (_d = params.frequencyPenalty) != null ? _d : 0,
+      presence_penalty: (_e = params.presencePenalty) != null ? _e : 0,
+      stream: false
+      // handled separately in stream method
+    };
+  }
+  transformResponse(data, requestedModel) {
+    var _a, _b;
+    const choice = (_a = data.choices) == null ? void 0 : _a[0];
+    if (!choice) {
+      throw new ProviderError(
+        "Invalid response format from Agent Router",
+        "invalid_response",
+        "server",
+        false
+      );
+    }
+    const usage = data.usage;
+    return {
+      text: ((_b = choice.message) == null ? void 0 : _b.content) || "",
+      tokens: usage ? {
+        input: usage.prompt_tokens || 0,
+        output: usage.completion_tokens || 0,
+        total: usage.total_tokens || 0
+      } : void 0,
+      metadata: {
+        model: data.model || requestedModel || "unknown",
+        provider: "agentrouter",
+        finishReason: choice.finish_reason,
+        usage: data.usage
+      }
+    };
+  }
+  async handleErrorResponse(response) {
+    var _a, _b;
+    let errorData = {};
+    try {
+      errorData = await response.json();
+    } catch {
+    }
+    const message = ((_a = errorData.error) == null ? void 0 : _a.message) || response.statusText;
+    const code = ((_b = errorData.error) == null ? void 0 : _b.code) || `http_${response.status}`;
+    if (response.status === 401 || response.status === 403) {
+      throw new AuthError(message);
+    }
+    if (response.status === 429) {
+      const resetTime = response.headers.get("retry-after");
+      throw new RateLimitError(message, resetTime ? parseInt(resetTime) * 1e3 : void 0);
+    }
+    if (response.status >= 500) {
+      throw new ProviderError(message, code, "server", true, response.status);
+    }
+    throw new ProviderError(message, code, "unknown", false, response.status);
+  }
+  async makeRequest(endpoint, options, timeout) {
+    const url = `${this.baseUrl}${endpoint}`;
+    const fetchOptions = {
+      ...options,
+      headers: {
+        "Authorization": `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
+        ...options.headers
+      }
+    };
+    if (timeout) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      fetchOptions.signal = controller.signal;
+      try {
+        const response = await fetch(url, fetchOptions);
+        clearTimeout(timeoutId);
+        return response;
+      } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+      }
+    }
+    return fetch(url, fetchOptions);
+  }
+  async withRetry(operation) {
+    let lastError;
+    for (let attempt = 1; attempt <= this.retryConfig.maxAttempts; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error;
+        if (error instanceof ProviderError && !error.retryable) {
+          throw error;
+        }
+        if (attempt === this.retryConfig.maxAttempts) {
+          break;
+        }
+        const baseDelay = this.retryConfig.baseDelay * Math.pow(this.retryConfig.backoffFactor, attempt - 1);
+        const jitter = this.retryConfig.jitter ? Math.random() * 0.1 * baseDelay : 0;
+        const delay = Math.min(baseDelay + jitter, this.retryConfig.maxDelay);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+    throw lastError;
+  }
+}
+
+var __defProp$2 = Object.defineProperty;
+var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$2 = (obj, key, value) => __defNormalProp$2(obj, typeof key !== "symbol" ? key + "" : key, value);
+const DEFAULT_RETRY_CONFIG = {
+  maxAttempts: 3,
+  baseDelay: 1e3,
+  maxDelay: 1e4,
+  backoffFactor: 2,
+  jitter: true
+};
+class RoutewayAdapter {
+  constructor(apiKey, retryConfig = {}) {
+    __publicField$2(this, "providerId", "routeway");
+    __publicField$2(this, "baseUrl", "https://api.routeway.ai/v1");
+    __publicField$2(this, "apiKey");
+    __publicField$2(this, "retryConfig");
+    this.apiKey = apiKey || this.getApiKey();
+    this.retryConfig = { ...DEFAULT_RETRY_CONFIG, ...retryConfig };
+  }
+  getApiKey() {
+    const key = process.env.NUXT_ROUTEWAY_API_KEY || process.env.ROUTEWAY_API_KEY;
+    if (!key) {
+      throw new AuthError("Routeway API key not found. Please set NUXT_ROUTEWAY_API_KEY environment variable.");
+    }
+    return key;
+  }
+  async models() {
+    var _a;
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      });
+      if (!response.ok) {
+        throw new ProviderError(
+          `Failed to fetch models: ${response.statusText}`,
+          "models_fetch_failed",
+          "server",
+          true,
+          response.status
+        );
+      }
+      const data = await response.json();
+      return ((_a = data.data) == null ? void 0 : _a.map((model) => model.id)) || [];
+    } catch (error) {
+      if (error instanceof ProviderError) throw error;
+      throw new ProviderError(
+        `Network error fetching models: ${error instanceof Error ? error.message : "Unknown error"}`,
+        "network_error",
+        "network",
+        true
+      );
+    }
+  }
+  async request(params) {
+    return this.withRetry(async () => {
+      const routewayRequest = this.transformRequest(params);
+      const response = await this.makeRequest("/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(routewayRequest)
+      });
+      if (!response.ok) {
+        await this.handleErrorResponse(response);
+      }
+      const data = await response.json();
+      return this.transformResponse(data, params.model);
+    });
+  }
+  async stream(params, onChunk) {
+    return this.withRetry(async () => {
+      var _a, _b, _c, _d;
+      const routewayRequest = {
+        ...this.transformRequest(params),
+        stream: true
+      };
+      const response = await this.makeRequest("/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(routewayRequest)
+      });
+      if (!response.ok) {
+        await this.handleErrorResponse(response);
+        return;
+      }
+      const reader = (_a = response.body) == null ? void 0 : _a.getReader();
+      if (!reader) {
+        throw new ProviderError(
+          "Response body is not readable",
+          "stream_error",
+          "server",
+          true
+        );
+      }
+      const decoder = new TextDecoder();
+      let buffer = "";
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") continue;
+              try {
+                const parsed = JSON.parse(data);
+                const content = (_d = (_c = (_b = parsed.choices) == null ? void 0 : _b[0]) == null ? void 0 : _c.delta) == null ? void 0 : _d.content;
+                if (content) {
+                  onChunk(content);
+                }
+              } catch (e) {
+                continue;
+              }
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
+    });
+  }
+  async healthCheck() {
+    const startTime = Date.now();
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      }, 5e3);
+      const latency = Date.now() - startTime;
+      if (!response.ok) {
+        return {
+          status: "unhealthy",
+          latency,
+          lastChecked: /* @__PURE__ */ new Date(),
+          error: `HTTP ${response.status}: ${response.statusText}`
+        };
+      }
+      const remaining = response.headers.get("x-ratelimit-remaining");
+      const resetTime = response.headers.get("x-ratelimit-reset");
+      return {
+        status: "healthy",
+        latency,
+        lastChecked: /* @__PURE__ */ new Date(),
+        rateLimit: remaining ? {
+          remaining: parseInt(remaining),
+          resetTime: resetTime ? parseInt(resetTime) * 1e3 : void 0
+        } : void 0
+      };
+    } catch (error) {
+      return {
+        status: "unhealthy",
+        latency: Date.now() - startTime,
+        lastChecked: /* @__PURE__ */ new Date(),
+        error: error instanceof Error ? error.message : "Unknown error"
+      };
+    }
+  }
+  async validateApiKey() {
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
+  async getRateLimit() {
+    try {
+      const response = await this.makeRequest("/models", {
+        method: "GET"
+      });
+      const remaining = response.headers.get("x-ratelimit-remaining");
+      const resetTime = response.headers.get("x-ratelimit-reset");
+      return {
+        remaining: remaining ? parseInt(remaining) : 0,
+        resetTime: resetTime ? parseInt(resetTime) * 1e3 : void 0
+      };
+    } catch {
+      return { remaining: 0 };
+    }
+  }
+  supportsStreaming() {
+    return true;
+  }
+  supportsAttachments() {
+    return false;
+  }
+  transformRequest(params) {
+    var _a, _b, _c, _d, _e;
+    const messages = params.messages.map((msg) => ({
+      role: msg.role,
+      content: msg.content
+      // Routeway may not support attachments
+    }));
+    return {
+      model: params.model || "gpt-3.5-turbo",
+      // default fallback
+      messages,
+      temperature: (_a = params.temperature) != null ? _a : 0.7,
+      max_tokens: (_b = params.maxTokens) != null ? _b : 1024,
+      top_p: (_c = params.topP) != null ? _c : 0.9,
+      frequency_penalty: (_d = params.frequencyPenalty) != null ? _d : 0,
+      presence_penalty: (_e = params.presencePenalty) != null ? _e : 0,
+      stream: false
+      // handled separately in stream method
+    };
+  }
+  transformResponse(data, requestedModel) {
+    var _a, _b;
+    const choice = (_a = data.choices) == null ? void 0 : _a[0];
+    if (!choice) {
+      throw new ProviderError(
+        "Invalid response format from Routeway",
+        "invalid_response",
+        "server",
+        false
+      );
+    }
+    const usage = data.usage;
+    return {
+      text: ((_b = choice.message) == null ? void 0 : _b.content) || "",
+      tokens: usage ? {
+        input: usage.prompt_tokens || 0,
+        output: usage.completion_tokens || 0,
+        total: usage.total_tokens || 0
+      } : void 0,
+      metadata: {
+        model: data.model || requestedModel || "unknown",
+        provider: "routeway",
+        finishReason: choice.finish_reason,
+        usage: data.usage
+      }
+    };
+  }
+  async handleErrorResponse(response) {
+    var _a, _b;
+    let errorData = {};
+    try {
+      errorData = await response.json();
+    } catch {
+    }
+    const message = ((_a = errorData.error) == null ? void 0 : _a.message) || response.statusText;
+    const code = ((_b = errorData.error) == null ? void 0 : _b.code) || `http_${response.status}`;
+    if (response.status === 401 || response.status === 403) {
+      throw new AuthError(message);
+    }
+    if (response.status === 429) {
+      const resetTime = response.headers.get("retry-after");
+      throw new RateLimitError(message, resetTime ? parseInt(resetTime) * 1e3 : void 0);
+    }
+    if (response.status >= 500) {
+      throw new ProviderError(message, code, "server", true, response.status);
+    }
+    throw new ProviderError(message, code, "unknown", false, response.status);
+  }
+  async makeRequest(endpoint, options, timeout) {
+    const url = `${this.baseUrl}${endpoint}`;
+    const fetchOptions = {
+      ...options,
+      headers: {
+        "Authorization": `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
+        ...options.headers
+      }
+    };
+    if (timeout) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      fetchOptions.signal = controller.signal;
+      try {
+        const response = await fetch(url, fetchOptions);
+        clearTimeout(timeoutId);
+        return response;
+      } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+      }
+    }
+    return fetch(url, fetchOptions);
+  }
+  async withRetry(operation) {
+    let lastError;
+    for (let attempt = 1; attempt <= this.retryConfig.maxAttempts; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error;
+        if (error instanceof ProviderError && !error.retryable) {
+          throw error;
+        }
+        if (attempt === this.retryConfig.maxAttempts) {
+          break;
+        }
+        const baseDelay = this.retryConfig.baseDelay * Math.pow(this.retryConfig.backoffFactor, attempt - 1);
+        const jitter = this.retryConfig.jitter ? Math.random() * 0.1 * baseDelay : 0;
+        const delay = Math.min(baseDelay + jitter, this.retryConfig.maxDelay);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+    throw lastError;
+  }
+}
+
+var __defProp$1 = Object.defineProperty;
+var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$1 = (obj, key, value) => __defNormalProp$1(obj, typeof key !== "symbol" ? key + "" : key, value);
+const MODEL_REGISTRY = [
+  // OpenRouter Models
+  {
+    id: "x-ai/grok-4.1-fast",
+    name: "Grok 4.1 Fast",
+    provider: "OpenRouter",
+    providerId: "openrouter",
+    description: "xAI's Grok model - fast and helpful",
+    contextWindow: 128e3,
+    maxTokens: 4096,
+    capabilities: ["text", "reasoning", "coding"],
+    status: "available",
+    icon: "Bot",
+    tags: ["xai", "grok", "fast"],
+    priority: 1
+  },
+  {
+    id: "z-ai/glm-4.5-air",
+    name: "GLM-4.5 Air",
+    provider: "OpenRouter",
+    providerId: "openrouter",
+    description: "Zhipu AI's GLM model - balanced performance",
+    contextWindow: 128e3,
+    maxTokens: 4096,
+    capabilities: ["text", "multilingual", "reasoning"],
+    status: "available",
+    icon: "Brain",
+    tags: ["zhipu", "glm", "balanced"],
+    priority: 1
+  },
+  {
+    id: "deepseek/deepseek-chat-v3-0324",
+    name: "DeepSeek Chat v3",
+    provider: "OpenRouter",
+    providerId: "openrouter",
+    description: "DeepSeek's advanced conversational AI",
+    contextWindow: 32768,
+    maxTokens: 4096,
+    capabilities: ["text", "coding", "analysis"],
+    status: "available",
+    icon: "MessageSquare",
+    tags: ["deepseek", "chat", "advanced"],
+    priority: 1
+  },
+  {
+    id: "qwen/qwen3-coder",
+    name: "Qwen3 Coder",
+    provider: "OpenRouter",
+    providerId: "openrouter",
+    description: "Alibaba's Qwen model specialized for coding",
+    contextWindow: 32768,
+    maxTokens: 4096,
+    capabilities: ["text", "coding", "debugging"],
+    status: "available",
+    icon: "Code",
+    tags: ["alibaba", "qwen", "coding"],
+    priority: 1
+  },
+  {
+    id: "openai/gpt-oss-20b",
+    name: "GPT OSS 20B",
+    provider: "OpenRouter",
+    providerId: "openrouter",
+    description: "Open-source GPT model with 20B parameters",
+    contextWindow: 8192,
+    maxTokens: 4096,
+    capabilities: ["text", "reasoning"],
+    status: "available",
+    icon: "Zap",
+    tags: ["openai", "gpt", "open-source"],
+    priority: 1
+  },
+  {
+    id: "google/gemini-2.0-flash-exp",
+    name: "Gemini 2.0 Flash",
+    provider: "OpenRouter",
+    providerId: "openrouter",
+    description: "Google's experimental Gemini model - fast and capable",
+    contextWindow: 1048576,
+    maxTokens: 4096,
+    capabilities: ["text", "vision", "multimodal"],
+    status: "available",
+    icon: "Sparkles",
+    tags: ["google", "gemini", "experimental", "vision"],
+    priority: 1
+  },
+  // MegaLLM Models (placeholder - would be populated dynamically)
+  {
+    id: "megallm-gpt-4",
+    name: "MegaLLM GPT-4",
+    provider: "MegaLLM",
+    providerId: "megallm",
+    description: "GPT-4 through MegaLLM",
+    contextWindow: 8192,
+    maxTokens: 4096,
+    capabilities: ["text", "reasoning"],
+    status: "available",
+    icon: "Brain",
+    tags: ["megallm", "gpt-4"],
+    priority: 2
+  },
+  // Agent Router Models (placeholder)
+  {
+    id: "agentrouter-claude",
+    name: "Agent Router Claude",
+    provider: "Agent Router",
+    providerId: "agentrouter",
+    description: "Claude through Agent Router",
+    contextWindow: 1e5,
+    maxTokens: 4096,
+    capabilities: ["text", "analysis"],
+    status: "available",
+    icon: "Bot",
+    tags: ["agentrouter", "claude"],
+    priority: 2
+  },
+  // Routeway Models (placeholder)
+  {
+    id: "routeway-gemini",
+    name: "Routeway Gemini",
+    provider: "Routeway",
+    providerId: "routeway",
+    description: "Gemini through Routeway",
+    contextWindow: 32768,
+    maxTokens: 4096,
+    capabilities: ["text", "multimodal"],
+    status: "available",
+    icon: "Sparkles",
+    tags: ["routeway", "gemini"],
+    priority: 2
+  }
+];
+const PROVIDER_CONFIGS = {
+  openrouter: {
+    id: "openrouter",
+    name: "OpenRouter",
+    baseUrl: "https://openrouter.ai/api/v1",
+    apiKeyEnvVar: "NUXT_OPENROUTER_API_KEY",
+    models: MODEL_REGISTRY.filter((m) => m.providerId === "openrouter"),
+    features: {
+      streaming: true,
+      attachments: true,
+      functionCalling: false,
+      vision: true
+    },
+    rateLimits: {
+      requestsPerMinute: 50,
+      requestsPerHour: 1e3,
+      tokensPerMinute: 1e4
+    }
+  },
+  megallm: {
+    id: "megallm",
+    name: "MegaLLM",
+    baseUrl: "https://ai.megallm.io/v1",
+    apiKeyEnvVar: "NUXT_MEGALLM_API_KEY",
+    models: MODEL_REGISTRY.filter((m) => m.providerId === "megallm"),
+    features: {
+      streaming: true,
+      attachments: false,
+      functionCalling: false,
+      vision: false
+    },
+    rateLimits: {
+      requestsPerMinute: 60,
+      requestsPerHour: 1e3,
+      tokensPerMinute: 15e3
+    }
+  },
+  agentrouter: {
+    id: "agentrouter",
+    name: "Agent Router",
+    baseUrl: "https://agentrouter.org/v1",
+    apiKeyEnvVar: "NUXT_AGENTROUTER_API_KEY",
+    models: MODEL_REGISTRY.filter((m) => m.providerId === "agentrouter"),
+    features: {
+      streaming: true,
+      attachments: false,
+      functionCalling: false,
+      vision: false
+    },
+    rateLimits: {
+      requestsPerMinute: 30,
+      requestsPerHour: 500,
+      tokensPerMinute: 8e3
+    }
+  },
+  routeway: {
+    id: "routeway",
+    name: "Routeway",
+    baseUrl: "https://api.routeway.ai/v1",
+    apiKeyEnvVar: "NUXT_ROUTEWAY_API_KEY",
+    models: MODEL_REGISTRY.filter((m) => m.providerId === "routeway"),
+    features: {
+      streaming: true,
+      attachments: false,
+      functionCalling: false,
+      vision: false
+    },
+    rateLimits: {
+      requestsPerMinute: 40,
+      requestsPerHour: 800,
+      tokensPerMinute: 12e3
+    }
+  }
+};
+function createProviderAdapter(providerId) {
+  switch (providerId) {
+    case "openrouter":
+      return new OpenRouterAdapter();
+    case "megallm":
+      return new MegaLLMAdapter();
+    case "agentrouter":
+      return new AgentRouterAdapter();
+    case "routeway":
+      return new RoutewayAdapter();
+    default:
+      throw new Error(`Unknown provider: ${providerId}`);
+  }
+}
+class ProviderHealthMonitor {
+  constructor() {
+    __publicField$1(this, "healthCache", /* @__PURE__ */ new Map());
+    __publicField$1(this, "lastCheck", /* @__PURE__ */ new Map());
+    __publicField$1(this, "CACHE_DURATION", 3e4);
+  }
+  // 30 seconds
+  async getProviderHealth(providerId) {
+    const now = Date.now();
+    const lastCheck = this.lastCheck.get(providerId) || 0;
+    if (now - lastCheck < this.CACHE_DURATION) {
+      const cached = this.healthCache.get(providerId);
+      if (cached) return cached;
+    }
+    try {
+      const adapter = createProviderAdapter(providerId);
+      const health = await adapter.healthCheck();
+      this.healthCache.set(providerId, health);
+      this.lastCheck.set(providerId, now);
+      return health;
+    } catch (error) {
+      const unhealthyHealth = {
+        status: "unknown",
+        lastChecked: /* @__PURE__ */ new Date(),
+        error: error instanceof Error ? error.message : "Unknown error"
+      };
+      this.healthCache.set(providerId, unhealthyHealth);
+      this.lastCheck.set(providerId, now);
+      return unhealthyHealth;
+    }
+  }
+  async getAllProviderHealth() {
+    const results = {};
+    const providers = ["openrouter", "megallm", "agentrouter", "routeway"];
+    await Promise.allSettled(
+      providers.map(async (providerId) => {
+        try {
+          results[providerId] = await this.getProviderHealth(providerId);
+        } catch (error) {
+          results[providerId] = {
+            status: "unknown",
+            lastChecked: /* @__PURE__ */ new Date(),
+            error: error instanceof Error ? error.message : "Health check failed"
+          };
+        }
+      })
+    );
+    return results;
+  }
+  clearCache() {
+    this.healthCache.clear();
+    this.lastCheck.clear();
+  }
+}
+new ProviderHealthMonitor();
+
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+const rateLimiters = /* @__PURE__ */ new Map();
+function cleanupRateLimiters(maxAge = 36e5) {
+  for (const limiter of rateLimiters.values()) {
+    limiter.cleanup(maxAge);
+  }
+}
+{
+  setInterval(() => {
+    cleanupRateLimiters();
+  }, 3e5);
+}
+class GlobalRateLimiter {
+  constructor() {
+    __publicField(this, "requests", /* @__PURE__ */ new Map());
+    __publicField(this, "windowMs", 6e4);
+    // 1 minute
+    __publicField(this, "maxRequests", 50);
+  }
+  // 50 requests per minute
+  checkLimit(key, _type) {
+    const now = Date.now();
+    const windowStart = now - this.windowMs;
+    let timestamps = this.requests.get(key) || [];
+    timestamps = timestamps.filter((ts) => ts > windowStart);
+    if (timestamps.length < this.maxRequests) {
+      timestamps.push(now);
+      this.requests.set(key, timestamps);
+      return { allowed: true };
+    }
+    const resetTime = timestamps[0] + this.windowMs;
+    return { allowed: false, resetTime };
+  }
+}
+const rateLimiter = new GlobalRateLimiter();
+
+const chat_post = defineEventHandler(async (event) => {
+  try {
+    const clientId = getHeader(event, "x-forwarded-for") || "anonymous";
+    const rateLimitResult = rateLimiter.checkLimit(clientId, "chat");
+    if (!rateLimitResult.allowed) {
+      throw createError({
+        statusCode: 429,
+        statusMessage: "Rate limit exceeded. Please try again later."
+      });
+    }
+    const body = await readBody(event);
+    if (!body.messages || !Array.isArray(body.messages) || body.messages.length === 0) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Invalid request: messages array required"
+      });
+    }
+    const model = body.model || "openai/gpt-4o-mini";
+    let provider = "openrouter";
+    if (model.includes("megallm")) {
+      provider = "megallm";
+    } else if (model.includes("agentrouter")) {
+      provider = "agentrouter";
+    } else if (model.includes("routeway")) {
+      provider = "routeway";
+    }
+    const adapter = createProviderAdapter(provider);
+    if (body.stream) {
+      setHeader(event, "Content-Type", "text/event-stream");
+      setHeader(event, "Cache-Control", "no-cache");
+      setHeader(event, "Connection", "keep-alive");
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          try {
+            let fullContent = "";
+            await adapter.stream(body, (chunk) => {
+              fullContent += chunk;
+              const data = JSON.stringify({ content: chunk, done: false });
+              controller.enqueue(encoder.encode(`data: ${data}
+
+`));
+            });
+            const doneData = JSON.stringify({ content: fullContent, done: true });
+            controller.enqueue(encoder.encode(`data: ${doneData}
+
+`));
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+            controller.close();
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Streaming error";
+            const errorData = JSON.stringify({ error: errorMessage, done: true });
+            controller.enqueue(encoder.encode(`data: ${errorData}
+
+`));
+            controller.close();
+          }
+        }
+      });
+      return sendStream(event, stream);
+    }
+    const response = await adapter.request(body);
+    if (response.error) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: response.error.message
+      });
+    }
+    return {
+      success: true,
+      data: response
+    };
+  } catch (error) {
+    console.error("Chat API error:", error);
+    if (error && typeof error === "object" && "statusCode" in error) {
+      throw error;
+    }
+    throw createError({
+      statusCode: 500,
+      statusMessage: error instanceof Error ? error.message : "Internal server error"
+    });
+  }
+});
+
+const chat_post$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: chat_post
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const providers_get = defineEventHandler(() => {
+  return {
+    success: true,
+    data: {
+      providers: PROVIDER_CONFIGS,
+      models: MODEL_REGISTRY
+    }
+  };
+});
+
+const providers_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: providers_get
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const health_get = defineEventHandler(async (event) => {
+  try {
+    const providerParam = getRouterParam(event, "provider");
+    if (!providerParam) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Provider parameter required"
+      });
+    }
+    const provider = providerParam;
+    const validProviders = ["openrouter", "megallm", "agentrouter", "routeway"];
+    if (!validProviders.includes(provider)) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: `Invalid provider: ${provider}`
+      });
+    }
+    const adapter = createProviderAdapter(provider);
+    const health = await adapter.healthCheck();
+    return {
+      success: health.status === "healthy",
+      data: health
+    };
+  } catch (error) {
+    console.error("Health check error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Health check failed",
+      data: {
+        status: "unhealthy",
+        lastChecked: /* @__PURE__ */ new Date(),
+        error: error instanceof Error ? error.message : "Unknown error"
+      }
+    };
+  }
+});
+
+const health_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: health_get
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const models_get = defineEventHandler((event) => {
+  try {
+    const providerParam = getRouterParam(event, "provider");
+    if (!providerParam) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Provider parameter required"
+      });
+    }
+    const provider = providerParam;
+    const models = MODEL_REGISTRY.filter((m) => m.providerId === provider);
+    return {
+      success: true,
+      data: models
+    };
+  } catch (error) {
+    console.error("Models fetch error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch models",
+      data: []
+    };
+  }
+});
+
+const models_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: models_get
 }, Symbol.toStringTag, { value: 'Module' }));
 
 function renderPayloadResponse(ssrContext) {

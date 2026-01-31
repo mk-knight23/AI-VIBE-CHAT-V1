@@ -1,17 +1,4 @@
-import { setup } from '@css-render/vue3-ssr'
-import { renderToString } from 'vue/server-renderer'
-
-export default defineNuxtPlugin((nuxtApp) => {
-  // Setup CSS render for SSR compatibility
-  if (process.server) {
-    const { collect } = setup(nuxtApp.vueApp)
-    const originalRenderToString = renderToString
-    renderToString = async (input, context) => {
-      const html = await originalRenderToString(input, context)
-      return `<style csr-id="naive-ui">${collect()}</style>${html}`
-    }
-  }
-
+export default defineNuxtPlugin(() => {
   // Theme configuration matching Glassmorphism design
   const theme = {
     common: {
