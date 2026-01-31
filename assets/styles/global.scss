@@ -1,8 +1,8 @@
 // AI-VIBE-CHAT-V1 - Global Styles
 // Glassmorphism Dark Theme
 
-@import 'variables';
-@import 'mixins';
+@use 'variables' as *;
+@use 'mixins' as *;
 
 // CSS Custom Properties (for runtime theming)
 :root {

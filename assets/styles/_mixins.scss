@@ -1,6 +1,6 @@
 // AI-VIBE-CHAT-V1 - SCSS Mixins
 
-@import 'variables';
+@use 'variables' as *;
 
 // Glassmorphism card mixin
 @mixin glass-card($opacity: 0.7, $blur: 20px) {
