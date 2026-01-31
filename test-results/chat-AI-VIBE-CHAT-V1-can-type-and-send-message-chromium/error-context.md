@@ -1,0 +1,76 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e7]:
+    - generic [ref=e8]:
+      - generic [ref=e9]: New Chat
+      - generic [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - generic [ref=e13]:
+          - generic [ref=e14]: New Chat
+          - generic [ref=e15]: 03:31 PM
+      - generic [ref=e16]: Settings
+      - generic "Settings" [ref=e17]:
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]:
+              - heading "Appearance" [level=3] [ref=e22]
+              - generic [ref=e24]: Theme
+              - generic [ref=e26]: Font Size
+              - generic [ref=e27]: Show message timestamps
+              - generic [ref=e28]: Show token usage
+            - generic [ref=e29]:
+              - heading "Behavior" [level=3] [ref=e30]
+              - generic [ref=e31]: Press Enter to send message
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - heading "Default Provider" [level=3] [ref=e34]
+              - generic [ref=e36]: Provider
+              - generic [ref=e38]: Model
+            - generic [ref=e39]:
+              - heading "Generation Parameters" [level=3] [ref=e40]
+              - generic [ref=e42]: "Temperature:"
+              - generic [ref=e44]: "Max Tokens:"
+              - generic [ref=e46]: System Prompt
+          - generic [ref=e48]:
+            - heading "AI-VIBE-CHAT-V1" [level=3] [ref=e49]
+            - paragraph [ref=e50]: A multi-provider AI chat application built with Vue 3, Nuxt 3, and Naive UI.
+            - generic [ref=e51]:
+              - generic [ref=e52]: 🔒 AES-GCM Encryption
+              - generic [ref=e53]: ⚡ Real-time Streaming
+              - generic [ref=e54]: 🤖 Multi-provider Support
+              - generic [ref=e55]: 🎨 Glassmorphism UI
+    - generic [ref=e56]:
+      - generic [ref=e59]:
+        - heading "AI-VIBE-CHAT-V1" [level=1] [ref=e60]
+        - paragraph [ref=e61]: Multi-provider AI chat with enterprise security
+        - generic [ref=e62]: Start New Chat
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - img [ref=e65]
+            - generic [ref=e66]: AES-GCM Encryption
+          - generic [ref=e67]:
+            - img [ref=e68]
+            - generic [ref=e69]: Real-time Streaming
+          - generic [ref=e70]:
+            - img [ref=e71]
+            - generic [ref=e72]: Multi-provider Support
+      - generic [ref=e75]: Enter to send, Shift+Enter for new line
+  - generic:
+    - img
+  - generic:
+    - generic:
+      - generic:
+        - button "Go to parent" [disabled]
+        - button "Open in editor"
+        - button "Close"
+  - generic [ref=e76]:
+    - button "Toggle Nuxt DevTools" [ref=e77] [cursor=pointer]:
+      - img [ref=e78]
+    - generic "Page load time" [ref=e81]:
+      - generic [ref=e82]: "4.3"
+      - generic [ref=e83]: s
+    - button "Toggle Component Inspector" [ref=e85] [cursor=pointer]:
+      - img [ref=e86]
+```

@@ -1,0 +1,66 @@
+// AI-VIBE-CHAT-V1 - Design Tokens
+// Glassmorphism Dark Theme
+
+// Background Colors
+$bg-primary: #0f172a;       // Deep navy - main background
+$bg-secondary: #1e293b;     // Dark slate - card backgrounds
+$bg-tertiary: #334155;      // Slate - elevated surfaces
+
+// Accent Colors
+$accent-primary: #8b5cf6;   // Purple
+$accent-primary-hover: #7c3aed;
+$accent-secondary: #06b6d4; // Cyan
+$accent-secondary-hover: #0891b2;
+
+// Text Colors
+$text-primary: #f1f5f9;     // White-ish - primary text
+$text-secondary: #94a3b8;   // Gray - secondary text
+$text-muted: #64748b;       // Darker gray - muted text
+
+// Border Colors
+$border-subtle: rgba(255, 255, 255, 0.1);
+$border-focus: rgba(139, 92, 246, 0.5);
+
+// Status Colors
+$success: #22c55e;
+$warning: #f59e0b;
+$error: #ef4444;
+$info: #3b82f6;
+
+// Glassmorphism
+$glass-bg: rgba(30, 41, 59, 0.7);
+$glass-blur: blur(20px);
+$glass-border: 1px solid $border-subtle;
+
+// Shadows
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+$shadow-glow: 0 0 20px rgba(139, 92, 246, 0.3);
+
+// Spacing
+$spacing-xs: 0.25rem;   // 4px
+$spacing-sm: 0.5rem;    // 8px
+$spacing-md: 1rem;      // 16px
+$spacing-lg: 1.5rem;    // 24px
+$spacing-xl: 2rem;      // 32px
+$spacing-2xl: 3rem;     // 48px
+
+// Border Radius
+$radius-sm: 0.375rem;   // 6px
+$radius-md: 0.5rem;     // 8px
+$radius-lg: 0.75rem;    // 12px
+$radius-xl: 1rem;       // 16px
+$radius-full: 9999px;
+
+// Transitions
+$transition-fast: 150ms ease;
+$transition-normal: 250ms ease;
+$transition-slow: 350ms ease;
+
+// Z-index scale
+$z-dropdown: 1000;
+$z-sticky: 1020;
+$z-modal: 1030;
+$z-popover: 1040;
+$z-tooltip: 1050;

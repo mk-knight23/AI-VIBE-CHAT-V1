@@ -1,0 +1,178 @@
+// AI-VIBE-CHAT-V1 - SCSS Mixins
+
+@import 'variables';
+
+// Glassmorphism card mixin
+@mixin glass-card($opacity: 0.7, $blur: 20px) {
+  background: rgba(30, 41, 59, $opacity);
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: $radius-lg;
+}
+
+// Gradient text mixin
+@mixin gradient-text($from: $accent-primary, $to: $accent-secondary) {
+  background: linear-gradient(135deg, $from, $to);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// Glow effect mixin
+@mixin glow($color: $accent-primary, $intensity: 0.3) {
+  box-shadow: 0 0 20px rgba($color, $intensity);
+}
+
+// Flex center mixin
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Scrollbar styling
+@mixin custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: $radius-full;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+// Message bubble mixins
+@mixin message-bubble-user {
+  background: linear-gradient(135deg, rgba($accent-primary, 0.9), rgba($accent-primary-hover, 0.9));
+  color: white;
+  border-radius: $radius-lg $radius-lg 0 $radius-lg;
+  align-self: flex-end;
+}
+
+@mixin message-bubble-assistant {
+  @include glass-card;
+  color: $text-primary;
+  border-radius: $radius-lg $radius-lg $radius-lg 0;
+  align-self: flex-start;
+}
+
+// Button variants
+@mixin button-primary {
+  background: linear-gradient(135deg, $accent-primary, $accent-primary-hover);
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  padding: $spacing-sm $spacing-md;
+  font-weight: 500;
+  transition: all $transition-fast;
+
+  &:hover {
+    transform: translateY(-1px);
+    @include glow($accent-primary, 0.4);
+  }
+}
+
+@mixin button-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: $text-primary;
+  border: 1px solid $border-subtle;
+  border-radius: $radius-md;
+  padding: $spacing-sm $spacing-md;
+  font-weight: 500;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+// Input styling
+@mixin input-glass {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid $border-subtle;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  color: $text-primary;
+  transition: all $transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: $accent-primary;
+    box-shadow: 0 0 0 3px rgba($accent-primary, 0.2);
+  }
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+// Animation keyframes
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes typing {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+// Animation mixins
+@mixin animate-fadeIn {
+  animation: fadeIn $transition-normal ease-out;
+}
+
+@mixin animate-slideUp {
+  animation: slideUp $transition-normal ease-out;
+}
+
+@mixin animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+// Responsive breakpoints
+@mixin mobile {
+  @media (max-width: 640px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (max-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: 1025px) {
+    @content;
+  }
+}
