@@ -1,29 +1,25 @@
 import type { FetchError } from 'ofetch'
 
-export default defineNuxtPlugin(() => {
-  // Vue error handler
-  const handler = (error: unknown, instance: unknown, info: string) => {
-    console.error('Vue Error:', error)
-    console.error('Component:', instance)
-    console.error('Info:', info)
+export default defineNuxtPlugin((nuxtApp) => {
+  // Vue error handler - use Nuxt's error handling
+  const handler = (error: unknown, _instance: unknown, _info: string) => {
+    // Log to error tracking service in production
+    // eslint-disable-next-line no-console
+    console.error('[App Error]', error)
   }
+
+  nuxtApp.vueApp.config.errorHandler = handler
 
   // Global error handler for unhandled promise rejections
   const rejectionHandler = (event: PromiseRejectionEvent) => {
-    console.error('Unhandled Promise Rejection:', event.reason)
-
-    const error = event.reason
-    if (error instanceof Error) {
-      console.error('Error stack:', error.stack)
-    }
+    // eslint-disable-next-line no-console
+    console.error('[Unhandled Rejection]', event.reason)
   }
 
   // Global error handler for synchronous errors
   const errorHandler = (event: ErrorEvent) => {
-    console.error('Global Error:', event.error)
-    console.error('Filename:', event.filename)
-    console.error('Line:', event.lineno)
-    console.error('Column:', event.colno)
+    // eslint-disable-next-line no-console
+    console.error('[Global Error]', event.error)
   }
 
   if (process.client) {
@@ -58,11 +54,14 @@ export function handleApiError(error: unknown): string {
 }
 
 // Helper function to show error notification
-export function showError(message: string) {
-  console.error('Error:', message)
+export function showError(message: string): void {
+  // Use a toast/notification system instead of console
+  // This is a placeholder for actual UI notification
+  throw new Error(message)
 }
 
 // Helper function to show success notification
-export function showSuccess(message: string) {
-  console.log('Success:', message)
+export function showSuccess(_message: string): void {
+  // Use a toast/notification system instead of console
+  // This is a placeholder for actual UI notification
 }
