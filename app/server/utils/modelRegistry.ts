@@ -12,9 +12,10 @@ import type {
   ModelAdapter,
 } from './providers';
 import { OpenRouterAdapter } from './providers/openrouter';
-  import { MegaLLMAdapter } from './providers/megallm';
+import { MegaLLMAdapter } from './providers/megallm';
 import { AgentRouterAdapter } from './providers/agentrouter';
 import { RoutewayAdapter } from './providers/routeway';
+import { MockAdapter } from './providers/mock';
 
 // Model registry with all available models
 export const MODEL_REGISTRY: ModelRegistryEntry[] = [
@@ -151,6 +152,22 @@ export const MODEL_REGISTRY: ModelRegistryEntry[] = [
     tags: ['routeway', 'gemini'],
     priority: 2,
   },
+
+  // Mock Provider Models (for development/testing)
+  {
+    id: 'mock/gpt-4o-mini',
+    name: 'Mock GPT-4o Mini',
+    provider: 'Mock',
+    providerId: 'mock',
+    description: 'Mock provider for development and testing',
+    contextWindow: 128000,
+    maxTokens: 4096,
+    capabilities: ['text', 'reasoning', 'coding'],
+    status: 'available',
+    icon: 'TestTube',
+    tags: ['mock', 'development', 'testing'],
+    priority: 99,
+  },
 ];
 
 // Provider configurations
@@ -227,6 +244,24 @@ export const PROVIDER_CONFIGS = {
       tokensPerMinute: 12000,
     },
   },
+  mock: {
+    id: 'mock',
+    name: 'Mock Provider',
+    baseUrl: 'http://localhost:3000/mock',
+    apiKeyEnvVar: 'MOCK_API_KEY',
+    models: MODEL_REGISTRY.filter(m => m.providerId === 'mock'),
+    features: {
+      streaming: true,
+      attachments: false,
+      functionCalling: false,
+      vision: false,
+    },
+    rateLimits: {
+      requestsPerMinute: 1000,
+      requestsPerHour: 10000,
+      tokensPerMinute: 100000,
+    },
+  },
 } as const;
 
 // Provider factory
@@ -240,9 +275,47 @@ export function createProviderAdapter(providerId: ProviderId): ModelAdapter {
       return new AgentRouterAdapter();
     case 'routeway':
       return new RoutewayAdapter();
+    case 'mock':
+      return new MockAdapter();
     default:
       throw new Error(`Unknown provider: ${providerId}`);
   }
+}
+
+/**
+ * Safely create a provider adapter with fallback to mock provider
+ * Use this when you want to gracefully handle missing API keys
+ */
+export function createSafeProviderAdapter(providerId: ProviderId): ModelAdapter {
+  try {
+    // Try to create the requested provider
+    if (providerId !== 'mock') {
+      // Check if API key is available for the provider
+      const config = PROVIDER_CONFIGS[providerId as keyof typeof PROVIDER_CONFIGS];
+      if (config) {
+        const apiKey = process.env[config.apiKeyEnvVar];
+        if (!apiKey) {
+          console.warn(`[Provider] ${providerId} API key not found (${config.apiKeyEnvVar}), falling back to mock provider`);
+          return new MockAdapter();
+        }
+      }
+    }
+    return createProviderAdapter(providerId);
+  } catch (error) {
+    console.warn(`[Provider] Failed to create ${providerId} adapter, falling back to mock:`, error);
+    return new MockAdapter();
+  }
+}
+
+/**
+ * Detect provider from model ID
+ */
+export function detectProviderFromModel(modelId: string): ProviderId {
+  if (modelId.includes('megallm')) return 'megallm';
+  if (modelId.includes('agentrouter')) return 'agentrouter';
+  if (modelId.includes('routeway')) return 'routeway';
+  if (modelId.includes('mock')) return 'mock';
+  return 'openrouter'; // default
 }
 
 // Model lookup functions

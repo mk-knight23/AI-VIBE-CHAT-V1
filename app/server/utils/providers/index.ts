@@ -168,7 +168,7 @@ export class AuthError extends ProviderError {
 }
 
 // Utility types
-export type ProviderId = 'openrouter' | 'megallm' | 'agentrouter' | 'routeway';
+export type ProviderId = 'openrouter' | 'megallm' | 'agentrouter' | 'routeway' | 'mock';
 
 export interface StreamingChunk {
   text: string;

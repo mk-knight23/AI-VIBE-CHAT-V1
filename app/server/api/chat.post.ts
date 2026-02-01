@@ -1,5 +1,5 @@
-import { defineEventHandler, readBody, createError, getHeader } from 'h3'
-import { createProviderAdapter } from '~/server/utils/modelRegistry'
+import { defineEventHandler, readBody, createError, getHeader, setHeader, sendStream } from 'h3'
+import { createSafeProviderAdapter, detectProviderFromModel } from '~/server/utils/modelRegistry'
 import { rateLimiter } from '~/server/utils/rateLimiter'
 import type { ModelRequest, ProviderId } from '~/server/utils/providers'
 
@@ -29,19 +29,10 @@ export default defineEventHandler(async (event) => {
 
     // Extract provider from model or use default
     const model = body.model || 'openai/gpt-4o-mini'
-    let provider: ProviderId = 'openrouter'
+    const provider: ProviderId = detectProviderFromModel(model)
 
-    // Simple provider detection from model prefix
-    if (model.includes('megallm')) {
-      provider = 'megallm'
-    } else if (model.includes('agentrouter')) {
-      provider = 'agentrouter'
-    } else if (model.includes('routeway')) {
-      provider = 'routeway'
-    }
-
-    // Create provider adapter
-    const adapter = createProviderAdapter(provider)
+    // Create provider adapter with fallback to mock
+    const adapter = createSafeProviderAdapter(provider)
 
     // Check if streaming is requested
     if (body.stream) {
