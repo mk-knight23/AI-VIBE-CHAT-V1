@@ -175,13 +175,18 @@ export const useChatStore = defineStore('chat', {
     },
 
     stopStreaming(): void {
-      if (this.streaming.isActive && this.streaming.messageId) {
+      // Only save if we have content and were actually streaming
+      if (this.streaming.isActive && this.streaming.content.trim()) {
         this.addMessage({
           role: 'assistant',
-          content: this.streaming.content,
+          content: this.streaming.content.trim(),
           isStreaming: false,
         })
       }
+      this.resetStreaming()
+    },
+
+    resetStreaming(): void {
       this.streaming = {
         isActive: false,
         messageId: null,
@@ -191,6 +196,14 @@ export const useChatStore = defineStore('chat', {
     },
 
     abortStreaming(): void {
+      // Save partial content if we have any
+      if (this.streaming.content.trim()) {
+        this.addMessage({
+          role: 'assistant',
+          content: this.streaming.content.trim() + '\n\n_[Response stopped by user]_',
+          isStreaming: false,
+        })
+      }
       this.streaming.aborted = true
       this.streaming.isActive = false
     },
