@@ -2986,9 +2986,9 @@ class AuthError extends ProviderError {
   }
 }
 
-var __defProp$5 = Object.defineProperty;
-var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$5 = (obj, key, value) => __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$6 = Object.defineProperty;
+var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$6 = (obj, key, value) => __defNormalProp$6(obj, typeof key !== "symbol" ? key + "" : key, value);
 const DEFAULT_RETRY_CONFIG$3 = {
   maxAttempts: 3,
   baseDelay: 1e3,
@@ -2998,10 +2998,10 @@ const DEFAULT_RETRY_CONFIG$3 = {
 };
 class OpenRouterAdapter {
   constructor(apiKey, retryConfig = {}) {
-    __publicField$5(this, "providerId", "openrouter");
-    __publicField$5(this, "baseUrl", "https://openrouter.ai/api/v1");
-    __publicField$5(this, "apiKey");
-    __publicField$5(this, "retryConfig");
+    __publicField$6(this, "providerId", "openrouter");
+    __publicField$6(this, "baseUrl", "https://openrouter.ai/api/v1");
+    __publicField$6(this, "apiKey");
+    __publicField$6(this, "retryConfig");
     this.apiKey = apiKey || this.getApiKey();
     this.retryConfig = { ...DEFAULT_RETRY_CONFIG$3, ...retryConfig };
   }
@@ -3306,9 +3306,9 @@ class OpenRouterAdapter {
   }
 }
 
-var __defProp$4 = Object.defineProperty;
-var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$4 = (obj, key, value) => __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$5 = Object.defineProperty;
+var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$5 = (obj, key, value) => __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
 const DEFAULT_RETRY_CONFIG$2 = {
   maxAttempts: 3,
   baseDelay: 1e3,
@@ -3318,10 +3318,10 @@ const DEFAULT_RETRY_CONFIG$2 = {
 };
 class MegaLLMAdapter {
   constructor(apiKey, retryConfig = {}) {
-    __publicField$4(this, "providerId", "megallm");
-    __publicField$4(this, "baseUrl", "https://ai.megallm.io/v1");
-    __publicField$4(this, "apiKey");
-    __publicField$4(this, "retryConfig");
+    __publicField$5(this, "providerId", "megallm");
+    __publicField$5(this, "baseUrl", "https://ai.megallm.io/v1");
+    __publicField$5(this, "apiKey");
+    __publicField$5(this, "retryConfig");
     this.apiKey = apiKey || this.getApiKey();
     this.retryConfig = { ...DEFAULT_RETRY_CONFIG$2, ...retryConfig };
   }
@@ -3615,9 +3615,9 @@ class MegaLLMAdapter {
   }
 }
 
-var __defProp$3 = Object.defineProperty;
-var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$3 = (obj, key, value) => __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$4 = Object.defineProperty;
+var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$4 = (obj, key, value) => __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
 const DEFAULT_RETRY_CONFIG$1 = {
   maxAttempts: 3,
   baseDelay: 1e3,
@@ -3627,10 +3627,10 @@ const DEFAULT_RETRY_CONFIG$1 = {
 };
 class AgentRouterAdapter {
   constructor(apiKey, retryConfig = {}) {
-    __publicField$3(this, "providerId", "agentrouter");
-    __publicField$3(this, "baseUrl", "https://agentrouter.org/v1");
-    __publicField$3(this, "apiKey");
-    __publicField$3(this, "retryConfig");
+    __publicField$4(this, "providerId", "agentrouter");
+    __publicField$4(this, "baseUrl", "https://agentrouter.org/v1");
+    __publicField$4(this, "apiKey");
+    __publicField$4(this, "retryConfig");
     this.apiKey = apiKey || this.getApiKey();
     this.retryConfig = { ...DEFAULT_RETRY_CONFIG$1, ...retryConfig };
   }
@@ -3924,9 +3924,9 @@ class AgentRouterAdapter {
   }
 }
 
-var __defProp$2 = Object.defineProperty;
-var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$2 = (obj, key, value) => __defNormalProp$2(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$3 = Object.defineProperty;
+var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$3 = (obj, key, value) => __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
 const DEFAULT_RETRY_CONFIG = {
   maxAttempts: 3,
   baseDelay: 1e3,
@@ -3936,10 +3936,10 @@ const DEFAULT_RETRY_CONFIG = {
 };
 class RoutewayAdapter {
   constructor(apiKey, retryConfig = {}) {
-    __publicField$2(this, "providerId", "routeway");
-    __publicField$2(this, "baseUrl", "https://api.routeway.ai/v1");
-    __publicField$2(this, "apiKey");
-    __publicField$2(this, "retryConfig");
+    __publicField$3(this, "providerId", "routeway");
+    __publicField$3(this, "baseUrl", "https://api.routeway.ai/v1");
+    __publicField$3(this, "apiKey");
+    __publicField$3(this, "retryConfig");
     this.apiKey = apiKey || this.getApiKey();
     this.retryConfig = { ...DEFAULT_RETRY_CONFIG, ...retryConfig };
   }
@@ -4233,6 +4233,112 @@ class RoutewayAdapter {
   }
 }
 
+var __defProp$2 = Object.defineProperty;
+var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$2 = (obj, key, value) => __defNormalProp$2(obj, typeof key !== "symbol" ? key + "" : key, value);
+class MockAdapter {
+  constructor() {
+    __publicField$2(this, "providerId", "mock");
+    __publicField$2(this, "baseUrl", "http://localhost:3000/mock");
+    __publicField$2(this, "apiKey", "mock-api-key");
+    // Simulated response delays for realistic feel
+    __publicField$2(this, "minDelay", 500);
+    __publicField$2(this, "maxDelay", 2e3);
+  }
+  async models() {
+    return [
+      "mock/gpt-4o-mini",
+      "mock/gpt-4o",
+      "mock/claude-3-haiku",
+      "mock/claude-3-sonnet"
+    ];
+  }
+  async request(params) {
+    await this.delay();
+    const lastMessage = params.messages[params.messages.length - 1];
+    const content = (lastMessage == null ? void 0 : lastMessage.content) || "";
+    const response = this.generateResponse(content);
+    return {
+      text: response,
+      tokens: {
+        input: content.length / 4,
+        output: response.length / 4,
+        total: (content.length + response.length) / 4
+      },
+      metadata: {
+        model: params.model || "mock/gpt-4o-mini",
+        provider: "mock",
+        finishReason: "stop"
+      }
+    };
+  }
+  async stream(params, onChunk) {
+    const lastMessage = params.messages[params.messages.length - 1];
+    const content = (lastMessage == null ? void 0 : lastMessage.content) || "";
+    const response = this.generateResponse(content);
+    const words = response.split(" ");
+    const delayPerWord = Math.min(100, this.maxDelay / words.length);
+    for (const word of words) {
+      await this.delay(delayPerWord);
+      onChunk(word + " ");
+    }
+  }
+  async healthCheck() {
+    return {
+      status: "healthy",
+      latency: 50,
+      lastChecked: /* @__PURE__ */ new Date(),
+      rateLimit: {
+        remaining: 1e3
+      }
+    };
+  }
+  async validateApiKey() {
+    return true;
+  }
+  async getRateLimit() {
+    return { remaining: 1e3 };
+  }
+  supportsStreaming() {
+    return true;
+  }
+  supportsAttachments() {
+    return false;
+  }
+  generateResponse(input) {
+    const lowerInput = input.toLowerCase();
+    if (lowerInput.includes("hello") || lowerInput.includes("hi")) {
+      return "Hello! I'm a mock AI assistant running in development mode. How can I help you today?";
+    }
+    if (lowerInput.includes("help")) {
+      return "I'm here to help! This is a mock response for testing purposes. In production, I would connect to real AI providers like OpenRouter, MegaLLM, or others.";
+    }
+    if (lowerInput.includes("weather")) {
+      return "I don't have access to real-time weather data in mock mode. In production, I could help you find weather information through various tools and APIs.";
+    }
+    if (lowerInput.includes("code") || lowerInput.includes("programming")) {
+      return "Here's a simple example in mock mode:\n\n```javascript\nfunction greet(name) {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet('World'));\n```\n\nIn production, I'd provide more comprehensive coding assistance.";
+    }
+    if (lowerInput.includes("thank")) {
+      return "You're welcome! I'm glad I could help. Remember, this is a mock response for development and testing purposes.";
+    }
+    return `I received your message: "${input}"
+
+This is a mock response since no real AI provider API key is configured. To use real AI providers, please set one of the following environment variables:
+
+- NUXT_OPENROUTER_API_KEY
+- NUXT_MEGALLM_API_KEY
+- NUXT_AGENTROUTER_API_KEY
+- NUXT_ROUTEWAY_API_KEY
+
+The mock provider allows you to test the chat interface and functionality without consuming real API credits.`;
+  }
+  delay(ms) {
+    const delayMs = ms || this.minDelay + Math.random() * (this.maxDelay - this.minDelay);
+    return new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+}
+
 var __defProp$1 = Object.defineProperty;
 var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField$1 = (obj, key, value) => __defNormalProp$1(obj, typeof key !== "symbol" ? key + "" : key, value);
@@ -4366,6 +4472,21 @@ const MODEL_REGISTRY = [
     icon: "Sparkles",
     tags: ["routeway", "gemini"],
     priority: 2
+  },
+  // Mock Provider Models (for development/testing)
+  {
+    id: "mock/gpt-4o-mini",
+    name: "Mock GPT-4o Mini",
+    provider: "Mock",
+    providerId: "mock",
+    description: "Mock provider for development and testing",
+    contextWindow: 128e3,
+    maxTokens: 4096,
+    capabilities: ["text", "reasoning", "coding"],
+    status: "available",
+    icon: "TestTube",
+    tags: ["mock", "development", "testing"],
+    priority: 99
   }
 ];
 const PROVIDER_CONFIGS = {
@@ -4440,6 +4561,24 @@ const PROVIDER_CONFIGS = {
       requestsPerHour: 800,
       tokensPerMinute: 12e3
     }
+  },
+  mock: {
+    id: "mock",
+    name: "Mock Provider",
+    baseUrl: "http://localhost:3000/mock",
+    apiKeyEnvVar: "MOCK_API_KEY",
+    models: MODEL_REGISTRY.filter((m) => m.providerId === "mock"),
+    features: {
+      streaming: true,
+      attachments: false,
+      functionCalling: false,
+      vision: false
+    },
+    rateLimits: {
+      requestsPerMinute: 1e3,
+      requestsPerHour: 1e4,
+      tokensPerMinute: 1e5
+    }
   }
 };
 function createProviderAdapter(providerId) {
@@ -4452,9 +4591,36 @@ function createProviderAdapter(providerId) {
       return new AgentRouterAdapter();
     case "routeway":
       return new RoutewayAdapter();
+    case "mock":
+      return new MockAdapter();
     default:
       throw new Error(`Unknown provider: ${providerId}`);
   }
+}
+function createSafeProviderAdapter(providerId) {
+  try {
+    if (providerId !== "mock") {
+      const config = PROVIDER_CONFIGS[providerId];
+      if (config) {
+        const apiKey = process.env[config.apiKeyEnvVar];
+        if (!apiKey) {
+          console.warn(`[Provider] ${providerId} API key not found (${config.apiKeyEnvVar}), falling back to mock provider`);
+          return new MockAdapter();
+        }
+      }
+    }
+    return createProviderAdapter(providerId);
+  } catch (error) {
+    console.warn(`[Provider] Failed to create ${providerId} adapter, falling back to mock:`, error);
+    return new MockAdapter();
+  }
+}
+function detectProviderFromModel(modelId) {
+  if (modelId.includes("megallm")) return "megallm";
+  if (modelId.includes("agentrouter")) return "agentrouter";
+  if (modelId.includes("routeway")) return "routeway";
+  if (modelId.includes("mock")) return "mock";
+  return "openrouter";
 }
 class ProviderHealthMonitor {
   constructor() {
@@ -4568,15 +4734,8 @@ const chat_post = defineEventHandler(async (event) => {
       });
     }
     const model = body.model || "openai/gpt-4o-mini";
-    let provider = "openrouter";
-    if (model.includes("megallm")) {
-      provider = "megallm";
-    } else if (model.includes("agentrouter")) {
-      provider = "agentrouter";
-    } else if (model.includes("routeway")) {
-      provider = "routeway";
-    }
-    const adapter = createProviderAdapter(provider);
+    const provider = detectProviderFromModel(model);
+    const adapter = createSafeProviderAdapter(provider);
     if (body.stream) {
       setHeader(event, "Content-Type", "text/event-stream");
       setHeader(event, "Cache-Control", "no-cache");

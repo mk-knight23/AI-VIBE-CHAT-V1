@@ -7,6 +7,7 @@ declare global {
   const H3Event: typeof import('../../node_modules/h3').H3Event
   const MODEL_REGISTRY: typeof import('../../app/server/utils/modelRegistry').MODEL_REGISTRY
   const MegaLLMAdapter: typeof import('../../app/server/utils/providers/megallm').MegaLLMAdapter
+  const MockAdapter: typeof import('../../app/server/utils/providers/mock').MockAdapter
   const OpenRouterAdapter: typeof import('../../app/server/utils/providers/openrouter').OpenRouterAdapter
   const PROVIDER_CONFIGS: typeof import('../../app/server/utils/modelRegistry').PROVIDER_CONFIGS
   const ProviderError: typeof import('../../app/server/utils/providers/index').ProviderError
@@ -36,6 +37,7 @@ declare global {
   const createEventStream: typeof import('../../node_modules/h3').createEventStream
   const createProviderAdapter: typeof import('../../app/server/utils/modelRegistry').createProviderAdapter
   const createRouter: typeof import('../../node_modules/h3').createRouter
+  const createSafeProviderAdapter: typeof import('../../app/server/utils/modelRegistry').createSafeProviderAdapter
   const defaultContentType: typeof import('../../node_modules/h3').defaultContentType
   const defineAppConfig: typeof import('../../node_modules/@nuxt/nitro-server/dist/runtime/utils/config').defineAppConfig
   const defineCachedEventHandler: typeof import('../../node_modules/nitropack/dist/runtime/internal/cache').defineCachedEventHandler
@@ -54,6 +56,7 @@ declare global {
   const defineWebSocket: typeof import('../../node_modules/h3').defineWebSocket
   const defineWebSocketHandler: typeof import('../../node_modules/h3').defineWebSocketHandler
   const deleteCookie: typeof import('../../node_modules/h3').deleteCookie
+  const detectProviderFromModel: typeof import('../../app/server/utils/modelRegistry').detectProviderFromModel
   const dynamicEventHandler: typeof import('../../node_modules/h3').dynamicEventHandler
   const eventHandler: typeof import('../../node_modules/h3').eventHandler
   const fetchWithEvent: typeof import('../../node_modules/h3').fetchWithEvent
@@ -173,6 +176,9 @@ declare global {
   export type { MegaLLMAdapter } from '../../app/server/utils/providers/megallm'
   import('../../app/server/utils/providers/megallm')
   // @ts-ignore
+  export type { MockAdapter } from '../../app/server/utils/providers/mock'
+  import('../../app/server/utils/providers/mock')
+  // @ts-ignore
   export type { OpenRouterAdapter } from '../../app/server/utils/providers/openrouter'
   import('../../app/server/utils/providers/openrouter')
   // @ts-ignore
@@ -196,10 +202,11 @@ export { defineTask, runTask } from 'nitropack/runtime/internal/task';
 export { defineNitroErrorHandler } from 'nitropack/runtime/internal/error/utils';
 export { buildAssetsURL as __buildAssetsURL, publicAssetsURL as __publicAssetsURL } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/node_modules/@nuxt/nitro-server/dist/runtime/utils/paths';
 export { defineAppConfig } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/node_modules/@nuxt/nitro-server/dist/runtime/utils/config';
-export { MODEL_REGISTRY, PROVIDER_CONFIGS, createProviderAdapter, getModelById, getModelsByProvider, getAvailableModels, getModelsByCapability, DEFAULT_FALLBACK_CHAINS, ProviderHealthMonitor, providerHealthMonitor } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/modelRegistry';
+export { MODEL_REGISTRY, PROVIDER_CONFIGS, createProviderAdapter, createSafeProviderAdapter, detectProviderFromModel, getModelById, getModelsByProvider, getAvailableModels, getModelsByCapability, DEFAULT_FALLBACK_CHAINS, ProviderHealthMonitor, providerHealthMonitor } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/modelRegistry';
 export { AgentRouterAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/providers/agentrouter';
 export { ProviderError, RateLimitError, AuthError } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/providers/index';
 export { MegaLLMAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/providers/megallm';
+export { MockAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/providers/mock';
 export { OpenRouterAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/providers/openrouter';
 export { RoutewayAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/providers/routeway';
 export { ProviderRateLimiter, CircuitBreaker, getProviderRateLimiter, getProviderCircuitBreaker, withRateLimit, withCircuitBreaker, withFaultTolerance, getRateLimitStatus, getCircuitBreakerStatus, cleanupRateLimiters, rateLimiter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/rateLimiter';

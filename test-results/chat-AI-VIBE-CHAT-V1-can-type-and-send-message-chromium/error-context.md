@@ -5,11 +5,11 @@
   - generic [ref=e7]:
     - generic [ref=e8]:
       - generic [ref=e9]: New Chat
-      - generic [ref=e11] [cursor=pointer]:
+      - generic "New Chat" [ref=e11] [cursor=pointer]:
         - img [ref=e12]
         - generic [ref=e13]:
           - generic [ref=e14]: New Chat
-          - generic [ref=e15]: 02:30 AM
+          - generic [ref=e15]: 09:25 PM
       - generic [ref=e16]: Settings
       - generic "Settings" [ref=e17]:
         - generic [ref=e19]:
@@ -69,8 +69,8 @@
     - button "Toggle Nuxt DevTools" [ref=e77] [cursor=pointer]:
       - img [ref=e78]
     - generic "Page load time" [ref=e81]:
-      - generic [ref=e82]: "917"
-      - generic [ref=e83]: ms
+      - generic [ref=e82]: "1"
+      - generic [ref=e83]: s
     - button "Toggle Component Inspector" [ref=e85] [cursor=pointer]:
       - img [ref=e86]
 ```
