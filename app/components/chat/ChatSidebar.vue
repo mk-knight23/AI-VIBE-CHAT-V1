@@ -15,6 +15,7 @@
         :key="session.id"
         class="session-item"
         :class="{ active: session.id === currentSessionId }"
+        :title="session.title || 'New Chat'"
         @click="switchChat(session.id)"
       >
         <Icon name="mdi:message-text" class="session-icon" />
@@ -52,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useChatStore } from '~/stores/chat'
 import { useSettingsStore } from '~/stores/settings'
 import { useChat } from '~/composables/useChat'
@@ -68,13 +69,24 @@ const isCollapsed = computed(() => settingsStore.app.sidebarCollapsed)
 const sortedSessions = computed(() => chatStore.sortedSessions)
 const currentSessionId = computed(() => chatStore.currentSessionId)
 
+// Ensure at least one session exists
+onMounted(() => {
+  if (chatStore.sessions.length === 0) {
+    createNewChat()
+  }
+})
+
 function formatDate(timestamp: number): string {
   const date = new Date(timestamp)
   const now = new Date()
   const isToday = date.toDateString() === now.toDateString()
+  const isYesterday = new Date(now.setDate(now.getDate() - 1)).toDateString() === date.toDateString()
 
   if (isToday) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  }
+  if (isYesterday) {
+    return 'Yesterday'
   }
   return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
 }
