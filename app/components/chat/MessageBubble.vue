@@ -35,23 +35,28 @@
         </div>
 
         <!-- Message text -->
-        <div class="message-text" v-html="renderedContent" />
+        <div ref="contentRef" class="message-text" v-html="renderedContent" />
 
         <!-- Token info -->
         <div v-if="message.tokens && showTokens" class="token-info">
           <span>{{ message.tokens.input }} input / {{ message.tokens.output }} output tokens</span>
         </div>
 
+        <!-- Copy confirmation toast -->
+        <div v-if="copiedCode" class="copy-toast">
+          Code copied to clipboard!
+        </div>
+
         <!-- Message actions -->
         <div v-if="!isStreaming && message.role === 'assistant'" class="message-actions">
           <n-button-group size="tiny">
-            <n-button @click="$emit('copy', message.id)">
+            <n-button @click="handleCopyMessage">
               <template #icon>
                 <Icon name="mdi:content-copy" />
               </template>
               Copy
             </n-button>
-            <n-button @click="$emit('regenerate', message.id)">
+            <n-button @click="handleRegenerate">
               <template #icon>
                 <Icon name="mdi:refresh" />
               </template>
@@ -65,26 +70,45 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import { useSettingsStore } from '~/stores/settings'
 import type { Message } from '~/stores/chat'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import hljs from 'highlight.js'
 
 const props = defineProps<{
   message: Message
   isStreaming?: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   copy: [messageId: string]
   regenerate: [messageId: string]
 }>()
 
 const settingsStore = useSettingsStore()
+const contentRef = ref<HTMLElement>()
+const copiedCode = ref<string | null>(null)
 
 const showTimestamp = computed(() => settingsStore.app.showTimestamps)
 const showTokens = computed(() => settingsStore.app.showTokens)
+
+// Configure marked with highlight.js
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+  highlight: (code: string, lang: string) => {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return hljs.highlight(code, { language: lang }).value
+      } catch {
+        return code
+      }
+    }
+    return code
+  },
+})
 
 // Render markdown content
 const renderedContent = computed(() => {
@@ -92,21 +116,54 @@ const renderedContent = computed(() => {
   if (!content) return ''
 
   try {
-    const html = marked.parse(content, {
-      gfm: true,
-      breaks: true,
+    const html = marked.parse(content)
+    return DOMPurify.sanitize(html, {
+      ADD_ATTR: ['target'],
+      FORBID_TAGS: ['script', 'style', 'iframe'],
     })
-    return DOMPurify.sanitize(html)
   } catch {
     return content
   }
 })
+
+// Apply syntax highlighting after render
+watch(() => props.message.content, () => {
+  nextTick(() => highlightCode())
+}, { immediate: true })
+
+function highlightCode() {
+  if (!contentRef.value) return
+  const blocks = contentRef.value.querySelectorAll('pre code')
+  blocks.forEach((block) => {
+    hljs.highlightElement(block as HTMLElement)
+  })
+}
 
 function formatTime(timestamp: number): string {
   return new Date(timestamp).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+async function copyCode(code: string) {
+  try {
+    await navigator.clipboard.writeText(code)
+    copiedCode.value = code.slice(0, 50)
+    setTimeout(() => {
+      copiedCode.value = null
+    }, 2000)
+  } catch (err) {
+    console.error('Failed to copy code:', err)
+  }
+}
+
+function handleCopyMessage() {
+  emit('copy', props.message.id)
+}
+
+function handleRegenerate() {
+  emit('regenerate', props.message.id)
 }
 </script>
 
@@ -276,5 +333,38 @@ function formatTime(timestamp: number): string {
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+
+.copy-toast {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  z-index: 1000;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Syntax highlighting improvements */
+.message-text :deep(pre) {
+  position: relative;
+}
+
+.message-text :deep(.hljs) {
+  background: transparent;
 }
 </style>
