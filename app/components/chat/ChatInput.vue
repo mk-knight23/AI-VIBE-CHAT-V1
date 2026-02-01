@@ -24,7 +24,7 @@
           v-if="isStreaming"
           type="error"
           circle
-          @click="abortStreaming"
+          @click="cancelStreaming"
         >
           <template #icon>
             <Icon name="mdi:stop" />
@@ -63,7 +63,7 @@ import { useChat } from '~/composables/useChat'
 const MAX_MESSAGE_LENGTH = 4000
 
 const settingsStore = useSettingsStore()
-const { sendMessage, isLoading, isStreaming, abortStreaming } = useChat()
+const { sendMessage, isLoading, isStreaming, cancelStreaming } = useChat()
 
 const message = ref('')
 const inputRef = ref<any>(null)

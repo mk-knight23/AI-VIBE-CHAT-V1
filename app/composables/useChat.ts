@@ -8,10 +8,16 @@ export interface SendMessageOptions {
   messageId?: string
 }
 
+// Timeout for streaming requests (5 minutes)
+const STREAMING_TIMEOUT = 5 * 60 * 1000
+
 export function useChat() {
   const chatStore = useChatStore()
   const settingsStore = useSettingsStore()
   const { streaming, startStreaming, stopStreaming, abortStreaming, appendStreamingContent } = useStreaming()
+
+  // Abort controller for fetch cancellation
+  let currentAbortController: AbortController | null = null
 
   const currentSession = computed(() => chatStore.currentSession)
   const currentMessages = computed(() => chatStore.currentMessages)
@@ -21,6 +27,11 @@ export function useChat() {
 
   async function sendMessage(content: string, _options: SendMessageOptions = {}) {
     if (!content.trim()) return
+
+    // Cancel any ongoing request
+    if (currentAbortController) {
+      currentAbortController.abort()
+    }
 
     const session = currentSession.value
     if (!session) {
@@ -36,6 +47,12 @@ export function useChat() {
     // Clear any previous error
     chatStore.clearError()
     chatStore.setLoading(true)
+
+    // Create new abort controller for this request
+    currentAbortController = new AbortController()
+    const timeoutId = setTimeout(() => {
+      currentAbortController?.abort('Timeout')
+    }, STREAMING_TIMEOUT)
 
     try {
       const request: ModelRequest = {
@@ -64,6 +81,7 @@ export function useChat() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
+        signal: currentAbortController.signal,
       })
 
       if (!response.ok) {
@@ -78,12 +96,19 @@ export function useChat() {
 
       const decoder = new TextDecoder()
       let buffer = ''
+      let receivedContent = false
 
       try {
         while (true) {
+          // Check if aborted
+          if (currentAbortController.signal.aborted) {
+            throw new Error('Request aborted')
+          }
+
           const { done, value } = await reader.read()
           if (done) break
 
+          receivedContent = true
           buffer += decoder.decode(value, { stream: true })
           const lines = buffer.split('\n')
           buffer = lines.pop() || ''
@@ -95,23 +120,43 @@ export function useChat() {
 
               try {
                 const parsed = JSON.parse(data)
+                if (parsed.error) {
+                  throw new Error(parsed.error)
+                }
                 if (parsed.content) {
                   chatStore.appendStreamingContent(parsed.content)
                 }
-              } catch {
-                // Skip invalid JSON
+              } catch (e) {
+                // Skip invalid JSON, but re-throw if it's an error
+                if (e instanceof Error && e.message !== 'Unexpected end of JSON input') {
+                  throw e
+                }
               }
             }
           }
         }
       } finally {
         reader.releaseLock()
+        clearTimeout(timeoutId)
+      }
+
+      // If no content was received, throw an error
+      if (!receivedContent) {
+        throw new Error('No response received from AI')
       }
 
       // Finalize the streaming message
       chatStore.stopStreaming()
 
     } catch (err) {
+      // Don't treat abort as error
+      if (err instanceof Error && err.name === 'AbortError') {
+        chatStore.abortStreaming()
+        chatStore.setLoading(false)
+        currentAbortController = null
+        return
+      }
+
       const errorMessage = err instanceof Error ? err.message : 'Failed to send message'
       chatStore.setError(errorMessage)
       chatStore.abortStreaming()
@@ -124,7 +169,17 @@ export function useChat() {
       })
     } finally {
       chatStore.setLoading(false)
+      currentAbortController = null
     }
+  }
+
+  function cancelStreaming() {
+    if (currentAbortController) {
+      currentAbortController.abort()
+      currentAbortController = null
+    }
+    chatStore.abortStreaming()
+    chatStore.setLoading(false)
   }
 
   function regenerateMessage(messageId: string) {
@@ -188,5 +243,6 @@ export function useChat() {
     deleteChat,
     switchChat,
     clearError: chatStore.clearError,
+    cancelStreaming,
   }
 }
