@@ -65,6 +65,7 @@ declare global {
   const fromWebHandler: typeof import('../../node_modules/h3').fromWebHandler
   const getAvailableModels: typeof import('../../app/server/utils/modelRegistry').getAvailableModels
   const getCircuitBreakerStatus: typeof import('../../app/server/utils/rateLimiter').getCircuitBreakerStatus
+  const getClientIp: typeof import('../../app/server/utils/getClientIp').getClientIp
   const getCookie: typeof import('../../node_modules/h3').getCookie
   const getHeader: typeof import('../../node_modules/h3').getHeader
   const getHeaders: typeof import('../../node_modules/h3').getHeaders
@@ -76,6 +77,7 @@ declare global {
   const getProviderRateLimiter: typeof import('../../app/server/utils/rateLimiter').getProviderRateLimiter
   const getProxyRequestHeaders: typeof import('../../node_modules/h3').getProxyRequestHeaders
   const getQuery: typeof import('../../node_modules/h3').getQuery
+  const getRateLimitKey: typeof import('../../app/server/utils/getClientIp').getRateLimitKey
   const getRateLimitStatus: typeof import('../../app/server/utils/rateLimiter').getRateLimitStatus
   const getRequestFingerprint: typeof import('../../node_modules/h3').getRequestFingerprint
   const getRequestHeader: typeof import('../../node_modules/h3').getRequestHeader
@@ -200,13 +202,14 @@ export { getRouteRules } from 'nitropack/runtime/internal/route-rules';
 export { useEvent } from 'nitropack/runtime/internal/context';
 export { defineTask, runTask } from 'nitropack/runtime/internal/task';
 export { defineNitroErrorHandler } from 'nitropack/runtime/internal/error/utils';
-export { buildAssetsURL as __buildAssetsURL, publicAssetsURL as __publicAssetsURL } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/node_modules/@nuxt/nitro-server/dist/runtime/utils/paths';
-export { defineAppConfig } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/node_modules/@nuxt/nitro-server/dist/runtime/utils/config';
-export { MODEL_REGISTRY, PROVIDER_CONFIGS, createProviderAdapter, createSafeProviderAdapter, detectProviderFromModel, getModelById, getModelsByProvider, getAvailableModels, getModelsByCapability, DEFAULT_FALLBACK_CHAINS, ProviderHealthMonitor, providerHealthMonitor } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/modelRegistry';
-export { AgentRouterAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/providers/agentrouter';
-export { ProviderError, RateLimitError, AuthError } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/providers/index';
-export { MegaLLMAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/providers/megallm';
-export { MockAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/providers/mock';
-export { OpenRouterAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/providers/openrouter';
-export { RoutewayAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/providers/routeway';
-export { ProviderRateLimiter, CircuitBreaker, getProviderRateLimiter, getProviderCircuitBreaker, withRateLimit, withCircuitBreaker, withFaultTolerance, getRateLimitStatus, getCircuitBreakerStatus, cleanupRateLimiters, rateLimiter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/server/utils/rateLimiter';
+export { buildAssetsURL as __buildAssetsURL, publicAssetsURL as __publicAssetsURL } from '/Users/mkazi/AI-VIBE-ECOSYSTEM/AI-VIBE-CHAT-V1/node_modules/@nuxt/nitro-server/dist/runtime/utils/paths';
+export { defineAppConfig } from '/Users/mkazi/AI-VIBE-ECOSYSTEM/AI-VIBE-CHAT-V1/node_modules/@nuxt/nitro-server/dist/runtime/utils/config';
+export { getClientIp, getRateLimitKey } from '/Users/mkazi/AI-VIBE-ECOSYSTEM/AI-VIBE-CHAT-V1/app/server/utils/getClientIp';
+export { MODEL_REGISTRY, PROVIDER_CONFIGS, createProviderAdapter, createSafeProviderAdapter, detectProviderFromModel, getModelById, getModelsByProvider, getAvailableModels, getModelsByCapability, DEFAULT_FALLBACK_CHAINS, ProviderHealthMonitor, providerHealthMonitor } from '/Users/mkazi/AI-VIBE-ECOSYSTEM/AI-VIBE-CHAT-V1/app/server/utils/modelRegistry';
+export { AgentRouterAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM/AI-VIBE-CHAT-V1/app/server/utils/providers/agentrouter';
+export { ProviderError, RateLimitError, AuthError } from '/Users/mkazi/AI-VIBE-ECOSYSTEM/AI-VIBE-CHAT-V1/app/server/utils/providers/index';
+export { MegaLLMAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM/AI-VIBE-CHAT-V1/app/server/utils/providers/megallm';
+export { MockAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM/AI-VIBE-CHAT-V1/app/server/utils/providers/mock';
+export { OpenRouterAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM/AI-VIBE-CHAT-V1/app/server/utils/providers/openrouter';
+export { RoutewayAdapter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM/AI-VIBE-CHAT-V1/app/server/utils/providers/routeway';
+export { ProviderRateLimiter, CircuitBreaker, getProviderRateLimiter, getProviderCircuitBreaker, withRateLimit, withCircuitBreaker, withFaultTolerance, getRateLimitStatus, getCircuitBreakerStatus, cleanupRateLimiters, rateLimiter } from '/Users/mkazi/AI-VIBE-ECOSYSTEM/AI-VIBE-CHAT-V1/app/server/utils/rateLimiter';

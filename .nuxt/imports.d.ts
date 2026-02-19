@@ -36,4 +36,3 @@ export { useProviders } from '../app/composables/useProviders';
 export { useStreaming, StreamingState } from '../app/composables/useStreaming';
 export { defineStore, acceptHMRUpdate, usePinia, storeToRefs } from '../node_modules/@pinia/nuxt/dist/runtime/composables';
 export { useColorMode } from '../node_modules/@nuxtjs/color-mode/dist/runtime/composables';
-export { useNuxtDevTools } from '../node_modules/@nuxt/devtools/dist/runtime/use-nuxt-devtools';

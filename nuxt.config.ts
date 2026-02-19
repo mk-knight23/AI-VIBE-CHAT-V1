@@ -80,7 +80,13 @@ export default defineNuxtConfig({
 
   // Route rules
   routeRules: {
-    '/api/**': { cors: true }
+    '/api/**': { 
+      cors: {
+        origin: process.env.NUXT_ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+        headers: ['Content-Type', 'Authorization']
+      }
+    }
   },
 
   // Compatibility

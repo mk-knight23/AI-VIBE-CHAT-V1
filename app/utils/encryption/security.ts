@@ -34,7 +34,7 @@ class SecurityManager {
     /document\./gi,
     /window\./gi,
     /fetch\s*\(/gi,
-    /XMLHttpRequest/gi
+    /XMLHttpRequest/gi,
   ];
 
   constructor() {
@@ -42,16 +42,33 @@ class SecurityManager {
       maxMessageLength: 10000,
       maxFileSize: 10 * 1024 * 1024, // 10MB
       allowedFileTypes: [
-        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
-        'application/pdf', 'text/plain', 'text/markdown', 'application/json',
-        'text/javascript', 'text/typescript', 'text/jsx', 'text/tsx',
-        'text/python', 'text/html', 'text/css', 'text/sql',
-        'text/java', 'text/cpp', 'text/c', 'text/rust', 'text/go'
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+        "image/svg+xml",
+        "application/pdf",
+        "text/plain",
+        "text/markdown",
+        "application/json",
+        "text/javascript",
+        "text/typescript",
+        "text/jsx",
+        "text/tsx",
+        "text/python",
+        "text/html",
+        "text/css",
+        "text/sql",
+        "text/java",
+        "text/cpp",
+        "text/c",
+        "text/rust",
+        "text/go",
       ],
       rateLimitWindow: 60000, // 1 minute
       maxRequestsPerWindow: 30,
       enableCSP: true,
-      sanitizeHTML: true
+      sanitizeHTML: true,
     };
   }
 
@@ -67,36 +84,38 @@ class SecurityManager {
     const result: ValidationResult = {
       valid: true,
       errors: [],
-      warnings: []
+      warnings: [],
     };
 
     // Check message length
     if (content.length > this.config.maxMessageLength) {
-      result.errors.push(`Message too long. Maximum ${this.config.maxMessageLength} characters allowed.`);
+      result.errors.push(
+        `Message too long. Maximum ${this.config.maxMessageLength} characters allowed.`,
+      );
       result.valid = false;
     }
 
     // Check for empty message
     if (!content.trim()) {
-      result.errors.push('Message cannot be empty.');
+      result.errors.push("Message cannot be empty.");
       result.valid = false;
     }
 
     // Check for suspicious patterns
     const suspiciousContent = this.detectSuspiciousContent(content);
     if (suspiciousContent.length > 0) {
-      result.warnings.push('Message contains potentially suspicious content.');
+      result.warnings.push("Message contains potentially suspicious content.");
     }
 
     // Check for excessive special characters
     const specialCharRatio = this.calculateSpecialCharRatio(content);
     if (specialCharRatio > 0.3) {
-      result.warnings.push('Message contains many special characters.');
+      result.warnings.push("Message contains many special characters.");
     }
 
     // Check for repeated characters (potential spam)
     if (this.hasExcessiveRepeatingChars(content)) {
-      result.warnings.push('Message contains excessive repeating characters.');
+      result.warnings.push("Message contains excessive repeating characters.");
     }
 
     return result;
@@ -106,35 +125,63 @@ class SecurityManager {
     const result: ValidationResult = {
       valid: true,
       errors: [],
-      warnings: []
+      warnings: [],
     };
 
     // Check file size
     if (file.size > this.config.maxFileSize) {
-      result.errors.push(`File too large. Maximum ${this.config.maxFileSize / 1024 / 1024}MB allowed.`);
+      result.errors.push(
+        `File too large. Maximum ${this.config.maxFileSize / 1024 / 1024}MB allowed.`,
+      );
       result.valid = false;
     }
 
     // Check file type
     if (!this.config.allowedFileTypes.includes(file.type)) {
       // Check by extension as fallback
-      const extension = file.name.split('.').pop()?.toLowerCase();
-      const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'pdf', 'txt', 'md', 'json', 'js', 'ts', 'jsx', 'tsx', 'py', 'html', 'css', 'sql', 'java', 'cpp', 'c', 'rs', 'go'];
+      const extension = file.name.split(".").pop()?.toLowerCase();
+      const allowedExtensions = [
+        "jpg",
+        "jpeg",
+        "png",
+        "gif",
+        "webp",
+        "svg",
+        "pdf",
+        "txt",
+        "md",
+        "json",
+        "js",
+        "ts",
+        "jsx",
+        "tsx",
+        "py",
+        "html",
+        "css",
+        "sql",
+        "java",
+        "cpp",
+        "c",
+        "rs",
+        "go",
+      ];
 
       if (!extension || !allowedExtensions.includes(extension)) {
-        result.errors.push(`File type not allowed. Supported types: ${allowedExtensions.join(', ')}`);
+        result.errors.push(
+          `File type not allowed. Supported types: ${allowedExtensions.join(", ")}`,
+        );
         result.valid = false;
       }
     }
 
     // Check for suspicious file names
     if (this.isSuspiciousFileName(file.name)) {
-      result.warnings.push('File name appears suspicious.');
+      result.warnings.push("File name appears suspicious.");
     }
 
     // Check for executable files
     if (this.isExecutableFile(file.name)) {
-      result.errors.push('Executable files are not allowed.');
+      result.errors.push("Executable files are not allowed.");
       result.valid = false;
     }
 
@@ -149,7 +196,7 @@ class SecurityManager {
     if (!entry) {
       this.rateLimitMap.set(identifier, {
         count: 1,
-        resetTime: now + this.config.rateLimitWindow
+        resetTime: now + this.config.rateLimitWindow,
       });
       return true;
     }
@@ -158,7 +205,7 @@ class SecurityManager {
       // Reset window
       this.rateLimitMap.set(identifier, {
         count: 1,
-        resetTime: now + this.config.rateLimitWindow
+        resetTime: now + this.config.rateLimitWindow,
       });
       return true;
     }
@@ -171,15 +218,21 @@ class SecurityManager {
     return true;
   }
 
-  getRateLimitStatus(identifier: string): { remaining: number; resetTime: number } {
+  getRateLimitStatus(identifier: string): {
+    remaining: number;
+    resetTime: number;
+  } {
     const entry = this.rateLimitMap.get(identifier);
     if (!entry) {
-      return { remaining: this.config.maxRequestsPerWindow, resetTime: Date.now() + this.config.rateLimitWindow };
+      return {
+        remaining: this.config.maxRequestsPerWindow,
+        resetTime: Date.now() + this.config.rateLimitWindow,
+      };
     }
 
     return {
       remaining: Math.max(0, this.config.maxRequestsPerWindow - entry.count),
-      resetTime: entry.resetTime
+      resetTime: entry.resetTime,
     };
   }
 
@@ -188,20 +241,23 @@ class SecurityManager {
     if (!this.config.sanitizeHTML) return input;
 
     // Remove script tags and their content
-    let sanitized = input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    let sanitized = input.replace(
+      /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+      "",
+    );
 
     // Remove javascript: URLs
-    sanitized = sanitized.replace(/javascript:/gi, '');
+    sanitized = sanitized.replace(/javascript:/gi, "");
 
     // Remove event handlers
-    sanitized = sanitized.replace(/on\w+\s*=/gi, '');
+    sanitized = sanitized.replace(/on\w+\s*=/gi, "");
 
     // Remove eval() calls
-    sanitized = sanitized.replace(/eval\s*\(/gi, '');
+    sanitized = sanitized.replace(/eval\s*\(/gi, "");
 
     // Remove dangerous object references
-    sanitized = sanitized.replace(/document\./gi, '');
-    sanitized = sanitized.replace(/window\./gi, '');
+    sanitized = sanitized.replace(/document\./gi, "");
+    sanitized = sanitized.replace(/window\./gi, "");
 
     return sanitized;
   }
@@ -239,20 +295,35 @@ class SecurityManager {
       /^\./,
       /\.\./,
       /[<>:"|?*]/,
-      /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i
+      /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i,
     ];
 
-    return suspiciousPatterns.some(pattern => pattern.test(fileName));
+    return suspiciousPatterns.some((pattern) => pattern.test(fileName));
   }
 
   private isExecutableFile(fileName: string): boolean {
-    const executableExtensions = ['.exe', '.bat', '.cmd', '.com', '.pif', '.scr', '.vbs', '.js', '.jar', '.app', '.deb', '.rpm'];
-    return executableExtensions.some(ext => fileName.toLowerCase().endsWith(ext));
+    const executableExtensions = [
+      ".exe",
+      ".bat",
+      ".cmd",
+      ".com",
+      ".pif",
+      ".scr",
+      ".vbs",
+      ".js",
+      ".jar",
+      ".app",
+      ".deb",
+      ".rpm",
+    ];
+    return executableExtensions.some((ext) =>
+      fileName.toLowerCase().endsWith(ext),
+    );
   }
 
   // Content Security Policy
   generateCSP(): string {
-    if (!this.config.enableCSP) return '';
+    if (!this.config.enableCSP) return "";
 
     return [
       "default-src 'self'",
@@ -265,12 +336,13 @@ class SecurityManager {
       "base-uri 'self'",
       "form-action 'self'",
       "frame-ancestors 'none'",
-      "upgrade-insecure-requests"
-    ].join('; ');
+      "upgrade-insecure-requests",
+    ].join("; ");
   }
 
   // IP Blocking
-  blockIP(ip: string, duration: number = 3600000): void { // 1 hour default
+  blockIP(ip: string, duration: number = 3600000): void {
+    // 1 hour default
     this.blockedIPs.add(ip);
     setTimeout(() => {
       this.blockedIPs.delete(ip);
@@ -292,8 +364,9 @@ class SecurityManager {
 
   // Utility Methods
   generateSecureToken(length: number = 32): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
     const randomValues = new Uint8Array(length);
     crypto.getRandomValues(randomValues);
 
@@ -304,23 +377,63 @@ class SecurityManager {
     return result;
   }
 
-  hashPassword(password: string, salt?: string): { hash: string; salt: string } {
+  /**
+   * Hash password using PBKDF2-SHA256
+   * Uses Web Crypto API for secure password hashing
+   */
+  async hashPassword(
+    password: string,
+    salt?: string,
+  ): Promise<{ hash: string; salt: string }> {
     const actualSalt = salt || this.generateSecureToken(16);
     const encoder = new TextEncoder();
-    const data = encoder.encode(password + actualSalt);
 
-    // Simple hash (in production, use a proper hashing library like bcrypt)
-    let hash = 0;
-    for (let i = 0; i < data.length; i++) {
-      const char = data[i];
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
+    // Import password as key material
+    const keyMaterial = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode(password),
+      "PBKDF2",
+      false,
+      ["deriveBits"],
+    );
+
+    // Import salt
+    const saltBuffer = encoder.encode(actualSalt);
+
+    // Derive key using PBKDF2 with 100,000 iterations
+    const derivedBits = await crypto.subtle.deriveBits(
+      {
+        name: "PBKDF2",
+        salt: saltBuffer,
+        iterations: 100000,
+        hash: "SHA-256",
+      },
+      keyMaterial,
+      256, // Output length in bits
+    );
+
+    // Convert to hex string
+    const hashArray = Array.from(new Uint8Array(derivedBits));
+    const hashHex = hashArray
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
 
     return {
-      hash: Math.abs(hash).toString(16),
-      salt: actualSalt
+      hash: hashHex,
+      salt: actualSalt,
     };
+  }
+
+  /**
+   * Verify password against a hash
+   */
+  async verifyPassword(
+    password: string,
+    hash: string,
+    salt: string,
+  ): Promise<boolean> {
+    const { hash: computedHash } = await this.hashPassword(password, salt);
+    return computedHash === hash;
   }
 
   // Cleanup
@@ -353,6 +466,7 @@ export function useSecurity() {
     getConfig: security.getConfig.bind(security),
     generateSecureToken: security.generateSecureToken.bind(security),
     hashPassword: security.hashPassword.bind(security),
-    cleanup: security.cleanup.bind(security)
+    verifyPassword: security.verifyPassword.bind(security),
+    cleanup: security.cleanup.bind(security),
   };
 }

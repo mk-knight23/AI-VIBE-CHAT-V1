@@ -88,7 +88,7 @@ class SecureStorageManager {
   /**
    * Derive encryption key from password using PBKDF2
    */
-  private async deriveKeyFromPassword(password: string): Promise<CryptoKey> {
+  private async deriveKeyFromPassword(password: string, salt?: Uint8Array): Promise<CryptoKey> {
     const encoder = new TextEncoder();
     const passwordBuffer = encoder.encode(password);
 
@@ -101,11 +101,16 @@ class SecureStorageManager {
       ['deriveBits', 'deriveKey']
     );
 
+    // Generate unique salt per user/session if not provided
+    const saltBytes = salt || crypto.getRandomValues(new Uint8Array(16));
+    // Create a proper ArrayBuffer copy for TypeScript
+    const saltBuffer = saltBytes.slice().buffer as ArrayBuffer;
+
     // Derive key using PBKDF2
     return await crypto.subtle.deriveKey(
       {
         name: 'PBKDF2',
-        salt: encoder.encode('chutes-ai-salt'), // In production, use a random salt
+        salt: saltBuffer,
         iterations: this.config.keyDerivationRounds!,
         hash: 'SHA-256'
       },

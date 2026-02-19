@@ -1,4 +1,4 @@
-import _default from "/Users/mkazi/AI-VIBE-ECOSYSTEM ReBuild/AI-VIBE-ChatWeb/AI-VIBE-CHAT-V1/app/layouts/default.vue";
+import _default from "/Users/mkazi/AI-VIBE-ECOSYSTEM/AI-VIBE-CHAT-V1/app/layouts/default.vue";
 import type { ComputedRef, MaybeRef } from 'vue'
 declare module 'nuxt/app' {
   interface NuxtLayouts {

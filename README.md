@@ -1,6 +1,44 @@
-# AI-VIBE-CHAT-V1 - Rebuilt with Vue 3 + Nuxt 3
+# 🎭 AI-VIBE-CHAT-V1
 
-> Production-ready AI chat application rebuilt with Vue 3, Nuxt 3, and Naive UI. Multi-provider support with enterprise security.
+<p align="center">
+  <img src="https://img.shields.io/badge/AI--VIBE-CHAT--V1-blue?style=for-the-badge&logo=nuxt.js&logoColor=white" alt="AI Vibe Project">
+  <br>
+  <b>Production-ready AI chat application rebuilt with Vue 3, Nuxt 3, and Naive UI.</b>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Nuxt-3.11+-00DC82.svg?logo=nuxt.js&logoColor=white" alt="Nuxt 3">
+  <img src="https://img.shields.io/badge/Vue-3.4+-42b883.svg?logo=vue.js&logoColor=white" alt="Vue 3">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
+</p>
+
+---
+
+## 🗺️ Quick Navigation
+
+- [🎯 Rebuild Overview](#-rebuild-overview)
+- [🚀 Quick Start](#-quick-start)
+- [🏗️ Architecture](#%EF%B8%8F-architecture)
+- [📁 Project Structure](#-project-structure)
+- [🎨 Theme](#-theme)
+- [🔧 Environment Variables](#-environment-variables)
+- [📦 Commands](#-commands)
+- [🔒 Security](#-security)
+- [♿ Accessibility](#-accessibility)
+
+---
+
+## 🛠️ Engineered With
+
+<p align="left">
+  <a href="https://nuxt.com"><img src="https://skillicons.dev/icons?i=nuxtjs" alt="Nuxt.js"></a>
+  <a href="https://vuejs.org"><img src="https://skillicons.dev/icons?i=vue" alt="Vue.js"></a>
+  <a href="https://pinia.vuejs.org"><img src="https://img.shields.io/badge/Pinia-Store-yellow" alt="Pinia"></a>
+  <a href="https://sass-lang.com"><img src="https://skillicons.dev/icons?i=sass" alt="Sass"></a>
+  <a href="https://typescriptlang.org"><img src="https://skillicons.dev/icons?i=ts" alt="TypeScript"></a>
+</p>
+
+---
 
 ## 🎯 Rebuild Overview
 
@@ -16,6 +54,8 @@ This project has been rebuilt from React/Vite to **Vue 3 + Nuxt 3** following th
 | **Styling** | Tailwind CSS | SCSS + Glassmorphism |
 | **Server** | Client-side only | Nitro SSR/SSG |
 | **Security** | Client API calls | Server proxy (hidden keys) |
+
+---
 
 ### Preserved Features
 
@@ -35,6 +75,8 @@ This project has been rebuilt from React/Vite to **Vue 3 + Nuxt 3** following th
 - ✅ File-based routing
 - ✅ Auto-imported composables
 
+---
+
 ## 🚀 Quick Start
 
 ```bash
@@ -50,6 +92,8 @@ npm run dev
 
 # Open http://localhost:3000
 ```
+
+---
 
 ## 🏗️ Architecture
 
@@ -72,6 +116,8 @@ npm run dev
 └─────────────────────────────────────────────────────────────┘
 ```
 
+---
+
 ## 📁 Project Structure
 
 ```
@@ -81,40 +127,15 @@ app/
 │   ├── settings/       # Settings components
 │   └── ui/             # Reusable UI primitives
 ├── composables/        # Auto-imported composables
-│   ├── useChat.ts
-│   ├── useStreaming.ts
-│   └── useProviders.ts
 ├── layouts/            # Nuxt layouts
 ├── pages/              # File-based routes
 ├── plugins/            # Nuxt plugins
-│   ├── naive-ui.ts
-│   └── error-handler.ts
 ├── stores/             # Pinia stores
-│   ├── chat.ts
-│   ├── settings.ts
-│   ├── providers.ts
-│   └── security.ts
 ├── utils/              # Utilities
-│   ├── encryption/     # AES encryption
-│   ├── providers/      # Provider adapters (client)
-│   └── types/          # TypeScript types
 └── assets/styles/      # SCSS styles
-    ├── _variables.scss
-    ├── _mixins.scss
-    └── global.scss
-
-server/
-├── api/                # API routes
-│   ├── chat.post.ts
-│   ├── chat/stream.post.ts
-│   ├── providers.get.ts
-│   └── providers/health.get.ts
-├── middleware/         # Server middleware
-└── utils/              # Server utilities
-    ├── providers/      # Provider adapters (server)
-    ├── rateLimiter.ts
-    └── modelRegistry.ts
 ```
+
+---
 
 ## 🎨 Theme
 
@@ -126,8 +147,6 @@ server/
 | `--bg-secondary` | `#1e293b` | Card backgrounds |
 | `--accent-primary` | `#8b5cf6` | Purple accent |
 | `--accent-secondary` | `#06b6d4` | Cyan accent |
-| `--text-primary` | `#f1f5f9` | Main text |
-| `--text-secondary` | `#94a3b8` | Muted text |
 
 **Glass Card Effect:**
 ```scss
@@ -135,6 +154,8 @@ background: rgba(30, 41, 59, 0.7);
 backdrop-filter: blur(20px);
 border: 1px solid rgba(255, 255, 255, 0.1);
 ```
+
+---
 
 ## 🔧 Environment Variables
 
@@ -153,6 +174,8 @@ NUXT_PUBLIC_APP_NAME=AI-VIBE-CHAT
 NUXT_PUBLIC_DEFAULT_PROVIDER=openrouter
 ```
 
+---
+
 ## 📦 Commands
 
 | Command | Description |
@@ -164,23 +187,7 @@ NUXT_PUBLIC_DEFAULT_PROVIDER=openrouter
 | `npm run lint` | Run ESLint |
 | `npm run typecheck` | TypeScript type check |
 
-## 📚 Rebuild Documentation
-
-See `/rebuild-docs/` for detailed specifications:
-
-| File | Description |
-|------|-------------|
-| `01-rebuild-overview.md` | Project overview and goals |
-| `02-rebuild-audit-plan.md` | Audit checklist |
-| `03-rebuild-architecture.md` | Target architecture |
-| `04-rebuild-stack-strategy.md` | Technology decisions |
-| `05-rebuild-ui-ux-plan.md` | UI/UX specifications |
-| `06-rebuild-feature-matrix.md` | Feature mapping |
-| `07-rebuild-folder-structure-plan.md` | Structure plan |
-| `08-rebuild-api-layer-plan.md` | API design |
-| `09-rebuild-state-flow.md` | State management |
-| `10-rebuild-migration-steps.md` | Migration roadmap |
-| `11-rebuild-quality-standards.md` | Quality requirements |
+---
 
 ## 🔒 Security
 
@@ -190,6 +197,8 @@ See `/rebuild-docs/` for detailed specifications:
 - **Input Validation** - Zod schema validation
 - **CSP Headers** - Content Security Policy
 
+---
+
 ## ♿ Accessibility
 
 - WCAG 2.1 AA compliant
@@ -197,10 +206,6 @@ See `/rebuild-docs/` for detailed specifications:
 - Screen reader support
 - Focus management
 - Reduced motion support
-
-## 📄 License
-
-MIT License - see LICENSE file for details.
 
 ---
 
@@ -215,21 +220,19 @@ MIT License - see LICENSE file for details.
 | 5 | Browser Verification & Lock-In | ✅ Complete |
 
 **Current State:**
-- ✅ App builds successfully (2.26 MB, 552KB gzip)
+- ✅ App builds successfully
 - ✅ Dev server runs on http://localhost:3000
-- ✅ API endpoints working (/api/providers, /api/chat)
+- ✅ API endpoints working
 - ✅ Vue 3 + Nuxt 3 + Naive UI stack operational
-- ✅ Sass modern module system (@use)
-- ✅ Server proxy for secure API keys
-- ⚠️ E2E tests partially passing (UI selectors need refinement)
-
-**Known Limitations:**
-- E2E tests require UI selector updates for full pass
-- Provider API keys needed for live chat testing
-- Streaming implementation needs real provider testing
 
 ---
 
-**Rebuilt with ❤️ using Vue 3 + Nuxt 3 + Naive UI**
+## 📄 License
 
-See `rebuild-docs/rebuild-report.md` for audit findings and `quality-report.md` for quality assessment.
+MIT License - see LICENSE file for details.
+
+---
+
+<p align="center">
+  <i>Rebuilt with ❤️ using Vue 3 + Nuxt 3 + Naive UI</i>
+</p>

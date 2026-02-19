@@ -1,4 +1,4 @@
-import { d as defineEventHandler, b as getRouterParam, c as createError } from '../../../../nitro/nitro.mjs';
+import { d as defineEventHandler, g as getRouterParam, c as createError } from '../../../../nitro/nitro.mjs';
 import { M as MODEL_REGISTRY } from '../../../../_/modelRegistry.mjs';
 import 'node:http';
 import 'node:https';
