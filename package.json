@@ -1,6 +1,7 @@
 {
   "name": "ai-vibe-chat-v1",
   "version": "1.0.0",
+  "description": "Feature-rich AI chat interface built with Nuxt 3 and Naive UI, featuring advanced encryption and glassmorphism design.",
   "private": true,
   "type": "module",
   "scripts": {
