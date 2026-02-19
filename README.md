@@ -120,6 +120,9 @@ npm run dev
 
 ## 📁 Project Structure
 
+<details>
+<summary>View Detailed Directory Map</summary>
+
 ```
 app/
 ├── components/          # Vue components
@@ -134,6 +137,8 @@ app/
 ├── utils/              # Utilities
 └── assets/styles/      # SCSS styles
 ```
+</details>
+
 
 ---
 
