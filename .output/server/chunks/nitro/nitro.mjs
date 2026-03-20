@@ -4047,7 +4047,7 @@ function _expandFromEnv(value) {
 const _inlineRuntimeConfig = {
   "app": {
     "baseURL": "/",
-    "buildId": "3158438d-4273-41a5-b19f-9544c69e3205",
+    "buildId": "86a2962b-9cb1-48ea-9705-f9fd50e8bd31",
     "buildAssetsDir": "/_nuxt/",
     "cdnURL": ""
   },
@@ -4534,77 +4534,77 @@ async function errorHandler(error, event) {
 
 const script = "\"use strict\";(()=>{const t=window,e=document.documentElement,c=[\"dark\",\"light\"],n=getStorageValue(\"localStorage\",\"nuxt-color-mode\")||\"system\";let i=n===\"system\"?u():n;const r=e.getAttribute(\"data-color-mode-forced\");r&&(i=r),l(i),t[\"__NUXT_COLOR_MODE__\"]={preference:n,value:i,getColorScheme:u,addColorScheme:l,removeColorScheme:d};function l(o){const s=\"\"+o+\"\",a=\"\";e.classList?e.classList.add(s):e.className+=\" \"+s,a&&e.setAttribute(\"data-\"+a,o)}function d(o){const s=\"\"+o+\"\",a=\"\";e.classList?e.classList.remove(s):e.className=e.className.replace(new RegExp(s,\"g\"),\"\"),a&&e.removeAttribute(\"data-\"+a)}function f(o){return t.matchMedia(\"(prefers-color-scheme\"+o+\")\")}function u(){if(t.matchMedia&&f(\"\").media!==\"not all\"){for(const o of c)if(f(\":\"+o).matches)return o}return\"dark\"}})();function getStorageValue(t,e){switch(t){case\"localStorage\":return window.localStorage.getItem(e);case\"sessionStorage\":return window.sessionStorage.getItem(e);case\"cookie\":return getCookie(e);default:return null}}function getCookie(t){const c=(\"; \"+window.document.cookie).split(\"; \"+t+\"=\");if(c.length===2)return c.pop()?.split(\";\").shift()}";
 
-const _KjqToLTKip1PGzqpG88UJ9DoEzlMNPkhYAghNN2RHK8 = (function(nitro) {
+const _nqdKtm3wbCrW47w8rBARnYgfsCPQhY_ofaLGKZsvP0A = (function(nitro) {
   nitro.hooks.hook("render:html", (htmlContext) => {
     htmlContext.head.push(`<script>${script}<\/script>`);
   });
 });
 
 const plugins = [
-  _KjqToLTKip1PGzqpG88UJ9DoEzlMNPkhYAghNN2RHK8
+  _nqdKtm3wbCrW47w8rBARnYgfsCPQhY_ofaLGKZsvP0A
 ];
 
 const assets = {
-  "/_nuxt/Bq3Xq7en.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": "\"241-84FQr8QKLGa1rgQeKLkiY2o1m5k\"",
-    "mtime": "2026-02-19T23:36:13.538Z",
-    "size": 577,
-    "path": "../public/_nuxt/Bq3Xq7en.js"
-  },
   "/_nuxt/B2f8jXBw.js": {
     "type": "text/javascript; charset=utf-8",
     "etag": "\"1461f-IYCi+t6pXd/1Ug0mPVOU4DX4F9M\"",
-    "mtime": "2026-02-19T23:36:13.538Z",
+    "mtime": "2026-03-20T13:33:24.854Z",
     "size": 83487,
     "path": "../public/_nuxt/B2f8jXBw.js"
+  },
+  "/_nuxt/Bq3Xq7en.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": "\"241-84FQr8QKLGa1rgQeKLkiY2o1m5k\"",
+    "mtime": "2026-03-20T13:33:24.854Z",
+    "size": 577,
+    "path": "../public/_nuxt/Bq3Xq7en.js"
+  },
+  "/_nuxt/Bwnx7Cgy.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": "\"2fb18-k0OLCOyFA9zSOQaEbVkvlzfpLLo\"",
+    "mtime": "2026-03-20T13:33:24.854Z",
+    "size": 195352,
+    "path": "../public/_nuxt/Bwnx7Cgy.js"
   },
   "/_nuxt/default.D9ltunxE.css": {
     "type": "text/css; charset=utf-8",
     "etag": "\"50-gqAVKvg1GRENlQCULco5fpWgn8M\"",
-    "mtime": "2026-02-19T23:36:13.538Z",
+    "mtime": "2026-03-20T13:33:24.854Z",
     "size": 80,
     "path": "../public/_nuxt/default.D9ltunxE.css"
   },
   "/_nuxt/entry.7M0FwtTf.css": {
     "type": "text/css; charset=utf-8",
     "etag": "\"180-Eyf2VMqZz8cqirTyV8XBC515G5c\"",
-    "mtime": "2026-02-19T23:36:13.538Z",
+    "mtime": "2026-03-20T13:33:24.854Z",
     "size": 384,
     "path": "../public/_nuxt/entry.7M0FwtTf.css"
   },
-  "/_nuxt/Bwnx7Cgy.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": "\"2fb18-k0OLCOyFA9zSOQaEbVkvlzfpLLo\"",
-    "mtime": "2026-02-19T23:36:13.538Z",
-    "size": 195352,
-    "path": "../public/_nuxt/Bwnx7Cgy.js"
+  "/_nuxt/builds/meta/86a2962b-9cb1-48ea-9705-f9fd50e8bd31.json": {
+    "type": "application/json",
+    "etag": "\"58-NvnLuR6UaBL/0V5UPjjjUNIvbLM\"",
+    "mtime": "2026-03-20T13:33:24.837Z",
+    "size": 88,
+    "path": "../public/_nuxt/builds/meta/86a2962b-9cb1-48ea-9705-f9fd50e8bd31.json"
   },
   "/_nuxt/index.Bns_GzgT.css": {
     "type": "text/css; charset=utf-8",
     "etag": "\"222f-91v+Se/XfFkFTgMTOv8rQQuKk0c\"",
-    "mtime": "2026-02-19T23:36:13.539Z",
+    "mtime": "2026-03-20T13:33:24.854Z",
     "size": 8751,
     "path": "../public/_nuxt/index.Bns_GzgT.css"
   },
   "/_nuxt/builds/latest.json": {
     "type": "application/json",
-    "etag": "\"47-iWFB+rqdJegWuWkiwTOEWKXQY0A\"",
-    "mtime": "2026-02-19T23:36:13.535Z",
+    "etag": "\"47-3eeVEOrL2+kb9LWLNWEnr59SJWE\"",
+    "mtime": "2026-03-20T13:33:24.848Z",
     "size": 71,
     "path": "../public/_nuxt/builds/latest.json"
-  },
-  "/_nuxt/builds/meta/3158438d-4273-41a5-b19f-9544c69e3205.json": {
-    "type": "application/json",
-    "etag": "\"58-oXHGSVIM5Y7qpqe1CRyfejD7qJ4\"",
-    "mtime": "2026-02-19T23:36:13.529Z",
-    "size": 88,
-    "path": "../public/_nuxt/builds/meta/3158438d-4273-41a5-b19f-9544c69e3205.json"
   },
   "/_nuxt/BFDRjek1.js": {
     "type": "text/javascript; charset=utf-8",
     "etag": "\"101695-pt1IvqXjTTYApKBw4rixYO/CJxU\"",
-    "mtime": "2026-02-19T23:36:13.539Z",
+    "mtime": "2026-03-20T13:33:24.855Z",
     "size": 1054357,
     "path": "../public/_nuxt/BFDRjek1.js"
   }
@@ -4736,7 +4736,7 @@ function getAsset (id) {
 
 const METHODS = /* @__PURE__ */ new Set(["HEAD", "GET"]);
 const EncodingMap = { gzip: ".gz", br: ".br" };
-const _m_n7kh = eventHandler((event) => {
+const _QKT6Ya = eventHandler((event) => {
   if (event.method && !METHODS.has(event.method)) {
     return;
   }
@@ -4802,21 +4802,21 @@ const _m_n7kh = eventHandler((event) => {
 
 const _SxA8c9 = defineEventHandler(() => {});
 
-const _lazy_vNQbR1 = () => import('../routes/api/chat.post.mjs');
-const _lazy_859jan = () => import('../routes/api/providers.get.mjs');
-const _lazy_b5F5gW = () => import('../routes/api/providers/_provider/health.get.mjs');
-const _lazy_Cyx6Nt = () => import('../routes/api/providers/_provider/models.get.mjs');
-const _lazy_kRrUj9 = () => import('../routes/renderer.mjs').then(function (n) { return n.r; });
+const _lazy_6sJvrG = () => import('../routes/api/chat.post.mjs');
+const _lazy_Svf2mA = () => import('../routes/api/providers.get.mjs');
+const _lazy_sFdh4e = () => import('../routes/api/providers/_provider/health.get.mjs');
+const _lazy_5wRhU9 = () => import('../routes/api/providers/_provider/models.get.mjs');
+const _lazy_7g45GC = () => import('../routes/renderer.mjs').then(function (n) { return n.r; });
 
 const handlers = [
-  { route: '', handler: _m_n7kh, lazy: false, middleware: true, method: undefined },
-  { route: '/api/chat', handler: _lazy_vNQbR1, lazy: true, middleware: false, method: "post" },
-  { route: '/api/providers', handler: _lazy_859jan, lazy: true, middleware: false, method: "get" },
-  { route: '/api/providers/:provider/health', handler: _lazy_b5F5gW, lazy: true, middleware: false, method: "get" },
-  { route: '/api/providers/:provider/models', handler: _lazy_Cyx6Nt, lazy: true, middleware: false, method: "get" },
-  { route: '/__nuxt_error', handler: _lazy_kRrUj9, lazy: true, middleware: false, method: undefined },
+  { route: '', handler: _QKT6Ya, lazy: false, middleware: true, method: undefined },
+  { route: '/api/chat', handler: _lazy_6sJvrG, lazy: true, middleware: false, method: "post" },
+  { route: '/api/providers', handler: _lazy_Svf2mA, lazy: true, middleware: false, method: "get" },
+  { route: '/api/providers/:provider/health', handler: _lazy_sFdh4e, lazy: true, middleware: false, method: "get" },
+  { route: '/api/providers/:provider/models', handler: _lazy_5wRhU9, lazy: true, middleware: false, method: "get" },
+  { route: '/__nuxt_error', handler: _lazy_7g45GC, lazy: true, middleware: false, method: undefined },
   { route: '/__nuxt_island/**', handler: _SxA8c9, lazy: false, middleware: false, method: undefined },
-  { route: '/**', handler: _lazy_kRrUj9, lazy: true, middleware: false, method: undefined }
+  { route: '/**', handler: _lazy_7g45GC, lazy: true, middleware: false, method: undefined }
 ];
 
 function createNitroApp() {

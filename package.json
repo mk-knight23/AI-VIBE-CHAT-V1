@@ -5,6 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "production": "npm run build && npm start",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
