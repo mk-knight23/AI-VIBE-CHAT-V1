@@ -1,285 +1,269 @@
-# 🚀 AI-VIBE-CHAT-V1 (Collective Production Edition)
+<div align="center">
 
-## 💎 Overview
-Fully production-grade implementation of AI-VIBE-CHAT-V1, refactored by the **69-Agent Opencode Collective**.
+# 🌌 AI-VIBE-CHAT-V1
 
-## 🛡️ Trust & Compliance
-- **CI/CD**: Automated GitHub Actions with Gitleaks security scans.
-- **Security**: Standardized [SECURITY.md](SECURITY.md) protocol.
-- **Design**: Opencode Premium Design Tokens integrated.
+### **The Encrypted Glassmorphic AI Chat Interface**
+*Built with Vue 3 · Nuxt 3 · Naive UI · AES-256 Encryption*
 
-## 🏁 48-Hour Roadmap
-1. Initialize infrastructure via `.github/workflows`.
-2. Set your secrets in GitHub Environment settings.
-3. Deploy to production via Vercel/Docker.
+[![Nuxt 3](https://img.shields.io/badge/Nuxt-3.13+-00DC82?style=for-the-badge&logo=nuxt.js&logoColor=white)](https://nuxt.com)
+[![Vue 3](https://img.shields.io/badge/Vue-3.5+-42b883?style=for-the-badge&logo=vue.js&logoColor=white)](https://vuejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![Pinia](https://img.shields.io/badge/Pinia-2.2+-FFD859?style=for-the-badge)](https://pinia.vuejs.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
-<p align="center">
-  <img src="https://img.shields.io/badge/AI--VIBE-CHAT--V1-blue?style=for-the-badge&logo=nuxt.js&logoColor=white" alt="AI Vibe Project">
-  <br>
-  <b>Production-ready AI chat application rebuilt with Vue 3, Nuxt 3, and Naive UI.</b>
-</p>
+**[🚀 Live Demo](https://ai-vibe-chat-v1.vercel.app)** · **[📖 Docs](./Docs)** · **[🐛 Issues](https://github.com/mk-knight23/AI-VIBE-CHAT-V1/issues)** · **[⭐ Star](https://github.com/mk-knight23/AI-VIBE-CHAT-V1)**
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Nuxt-3.11+-00DC82.svg?logo=nuxt.js&logoColor=white" alt="Nuxt 3">
-  <img src="https://img.shields.io/badge/Vue-3.4+-42b883.svg?logo=vue.js&logoColor=white" alt="Vue 3">
-  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
-</p>
+</div>
 
 ---
 
-## 🗺️ Quick Navigation
+## 🎯 What Is This?
 
-- [🎯 Rebuild Overview](#-rebuild-overview)
-- [🚀 Quick Start](#-quick-start)
-- [🏗️ Architecture](#%EF%B8%8F-architecture)
-- [📁 Project Structure](#-project-structure)
-- [🎨 Theme](#-theme)
-- [🔧 Environment Variables](#-environment-variables)
-- [📦 Commands](#-commands)
-- [🔒 Security](#-security)
-- [♿ Accessibility](#-accessibility)
+AI-VIBE-CHAT-V1 is the **first pillar** of the AI-VIBE ecosystem — a production-grade AI chat interface built with **Nuxt 3 + Vue 3**, featuring military-grade **AES-256 encryption** for all chat history, a stunning **glassmorphism design system**, and multi-provider LLM routing.
+
+> **Pillar 1 of 4** — The foundation. Where glassmorphism meets encryption meets AI.
 
 ---
 
-## 🛠️ Engineered With
+## ✨ Features
 
-<p align="left">
-  <a href="https://nuxt.com"><img src="https://skillicons.dev/icons?i=nuxtjs" alt="Nuxt.js"></a>
-  <a href="https://vuejs.org"><img src="https://skillicons.dev/icons?i=vue" alt="Vue.js"></a>
-  <a href="https://pinia.vuejs.org"><img src="https://img.shields.io/badge/Pinia-Store-yellow" alt="Pinia"></a>
-  <a href="https://sass-lang.com"><img src="https://skillicons.dev/icons?i=sass" alt="Sass"></a>
-  <a href="https://typescriptlang.org"><img src="https://skillicons.dev/icons?i=ts" alt="TypeScript"></a>
-</p>
-
----
-
-## 🎯 Rebuild Overview
-
-This project has been rebuilt from React/Vite to **Vue 3 + Nuxt 3** following the specifications in `/rebuild-docs/`.
-
-### What's Changed
-
-| Aspect | Before (v4.0) | After (Rebuilt) |
-|--------|---------------|-----------------|
-| **Framework** | React 18 + Vite | Vue 3.4 + Nuxt 3.11 |
-| **State** | Zustand | Pinia with persistence |
-| **UI** | Radix UI + shadcn | Naive UI |
-| **Styling** | Tailwind CSS | SCSS + Glassmorphism |
-| **Server** | Client-side only | Nitro SSR/SSG |
-| **Security** | Client API calls | Server proxy (hidden keys) |
-
----
-
-### Preserved Features
-
-- ✅ Multi-provider support (OpenRouter, MegaLLM, AgentRouter, Routeway)
-- ✅ 10+ AI models
-- ✅ AES-GCM encryption
-- ✅ PWA capabilities
-- ✅ WCAG 2.1 AA accessibility
-- ✅ Provider health monitoring
-- ✅ Rate limiting
-
-### New Features
-
-- ✅ Server-side rendering for SEO
-- ✅ Server-side API proxy (secure API keys)
-- ✅ Glassmorphism UI theme
-- ✅ File-based routing
-- ✅ Auto-imported composables
-
----
-
-## 🚀 Quick Start
-
-```bash
-# Install dependencies
-npm install
-
-# Setup environment
-cp .env.example .env
-# Edit .env with your API keys
-
-# Run development server
-npm run dev
-
-# Open http://localhost:3000
-```
+| Feature | Description |
+|---------|-------------|
+| 🔐 **AES-256 Encryption** | All chat history encrypted client-side with CryptoJS |
+| 🌊 **Streaming Responses** | Token-by-token streaming from any LLM provider |
+| 🧠 **Multi-Provider** | OpenAI, Anthropic Claude, Groq, local Ollama |
+| 🎨 **Glassmorphism UI** | Frosted glass panels, blur effects, depth layers |
+| 🌙 **Dark/Light Mode** | Seamless theme switching via Nuxt Color Mode |
+| 📱 **PWA Ready** | Service worker, offline mode, installable |
+| 🗄️ **Pinia State** | Reactive chat store with persistence |
+| 🎙️ **Voice Input** | Browser Speech API integration |
+| 📤 **Export Chat** | JSON, Markdown, PDF export |
+| ♿ **Accessible** | WCAG 2.1 AA compliant |
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        NUXT 3 APP                           │
-├─────────────────────────────────────────────────────────────┤
-│  UI Layer        │  Vue SFCs + Naive UI                      │
-│  State Layer     │  Pinia stores (persisted + encrypted)     │
-│  Chat Engine     │  Composables (useChat, useStreaming)      │
-│  API Layer       │  $fetch → Nitro routes                    │
-└─────────────────────────────────────────────────────────────┘
-                             │
-┌─────────────────────────────────────────────────────────────┐
-│                      NITRO SERVER                           │
-├─────────────────────────────────────────────────────────────┤
-│  API Routes      │  /api/chat, /api/providers                │
-│  Adapters        │  OpenRouter, MegaLLM, AgentRouter, Routeway│
-│  Middleware      │  CORS, rate limiting, auth                │
-└─────────────────────────────────────────────────────────────┘
+ai-vibe-chat-v1/
+├── 📁 assets/
+│   └── styles/
+│       ├── global.scss          # Global glassmorphism utilities
+│       ├── _variables.scss      # Design tokens (blur, opacity, colors)
+│       └── _mixins.scss         # Glass panel, neon glow mixins
+├── 📁 components/
+│   ├── chat/
+│   │   ├── ChatWindow.vue       # Main chat container
+│   │   ├── MessageBubble.vue    # Individual message with glass effect
+│   │   ├── InputBar.vue         # Message composer with voice input
+│   │   └── ProviderSelector.vue # Multi-LLM switcher
+│   └── layout/
+│       ├── Sidebar.vue          # Conversation history sidebar
+│       └── Header.vue           # Nav with settings
+├── 📁 composables/
+│   ├── useChat.ts               # Core chat logic & streaming
+│   ├── useEncryption.ts         # AES-256 encrypt/decrypt
+│   ├── useProviders.ts          # LLM provider routing
+│   └── useVoiceInput.ts         # Speech-to-text
+├── 📁 server/
+│   └── api/
+│       ├── chat.post.ts         # Unified chat endpoint
+│       ├── stream.post.ts       # Streaming endpoint (SSE)
+│       └── providers.get.ts     # Available providers
+├── 📁 stores/
+│   ├── chatStore.ts             # Conversation state
+│   ├── settingsStore.ts         # User preferences
+│   └── encryptionStore.ts       # Encryption key management
+└── 📁 public/
+    ├── sw.js                    # Service worker (PWA)
+    └── manifest.json            # Web app manifest
 ```
 
 ---
 
-## 📁 Project Structure
+## 🚀 Quick Start
 
-<details>
-<summary>View Detailed Directory Map</summary>
+### Prerequisites
+- Node.js 20+
+- npm/pnpm/yarn
 
-```
-app/
-├── components/          # Vue components
-│   ├── chat/           # Chat-specific components
-│   ├── settings/       # Settings components
-│   └── ui/             # Reusable UI primitives
-├── composables/        # Auto-imported composables
-├── layouts/            # Nuxt layouts
-├── pages/              # File-based routes
-├── plugins/            # Nuxt plugins
-├── stores/             # Pinia stores
-├── utils/              # Utilities
-└── assets/styles/      # SCSS styles
-```
-</details>
+### Installation
 
+```bash
+# Clone
+git clone https://github.com/mk-knight23/AI-VIBE-CHAT-V1.git
+cd AI-VIBE-CHAT-V1
 
----
+# Install
+npm install
 
-## 🎨 Theme
-
-**Glassmorphism Design System:**
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--bg-primary` | `#0f172a` | Main background |
-| `--bg-secondary` | `#1e293b` | Card backgrounds |
-| `--accent-primary` | `#8b5cf6` | Purple accent |
-| `--accent-secondary` | `#06b6d4` | Cyan accent |
-
-**Glass Card Effect:**
-```scss
-background: rgba(30, 41, 59, 0.7);
-backdrop-filter: blur(20px);
-border: 1px solid rgba(255, 255, 255, 0.1);
+# Configure environment
+cp .env.example .env
 ```
 
----
-
-## 🔧 Environment Variables
+### Environment Variables
 
 ```env
-# Server-side only (API keys hidden from client)
-OPENROUTER_API_KEY=your_key
-MEGALLM_API_KEY=your_key
-AGENTROUTER_API_KEY=your_key
-ROUTEWAY_API_KEY=your_key
+# LLM Providers (add the ones you use)
+NUXT_OPENAI_API_KEY=sk-...
+NUXT_ANTHROPIC_API_KEY=sk-ant-...
+NUXT_GROQ_API_KEY=gsk_...
 
-# Encryption
-ENCRYPTION_KEY=your_32_char_key
+# Encryption (auto-generated if not set)
+NUXT_ENCRYPTION_SECRET=your-32-char-secret-key-here
 
-# Public (exposed to client)
-NUXT_PUBLIC_APP_NAME=AI-VIBE-CHAT
-NUXT_PUBLIC_DEFAULT_PROVIDER=openrouter
+# Optional: Ollama local endpoint
+NUXT_OLLAMA_BASE_URL=http://localhost:11434
 ```
+
+### Development
+
+```bash
+npm run dev      # Start dev server → http://localhost:3000
+npm run build    # Production build
+npm run preview  # Preview production build
+npm run test     # Run Vitest + Playwright
+```
+
+---
+
+## 🔐 Encryption Architecture
+
+All chat history is encrypted using **AES-256-GCM** before being stored in localStorage or IndexedDB:
+
+```typescript
+// composables/useEncryption.ts
+import CryptoJS from 'crypto-js'
+
+export const useEncryption = () => {
+  const encrypt = (data: string, key: string): string => {
+    return CryptoJS.AES.encrypt(data, key).toString()
+  }
+
+  const decrypt = (encrypted: string, key: string): string => {
+    const bytes = CryptoJS.AES.decrypt(encrypted, key)
+    return bytes.toString(CryptoJS.enc.Utf8)
+  }
+
+  return { encrypt, decrypt }
+}
+```
+
+---
+
+## 🌊 Multi-Provider Streaming
+
+```typescript
+// server/api/stream.post.ts
+export default defineEventHandler(async (event) => {
+  const { provider, model, messages } = await readBody(event)
+  
+  setHeader(event, 'Content-Type', 'text/event-stream')
+  
+  const stream = await getProviderStream(provider, model, messages)
+  
+  return sendStream(event, stream)
+})
+```
+
+---
+
+## 🎨 Design System
+
+The glassmorphism design uses three layers:
+
+| Layer | Blur | Opacity | Use Case |
+|-------|------|---------|----------|
+| **Glass Heavy** | 20px | 0.15 | Modal panels, sidebars |
+| **Glass Medium** | 12px | 0.10 | Cards, message bubbles |
+| **Glass Light** | 6px | 0.06 | Hover states, tooltips |
 
 ---
 
 ## 📦 Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run preview` | Preview production build |
-| `npm run test` | Run tests |
-| `npm run lint` | Run ESLint |
-| `npm run typecheck` | TypeScript type check |
+```bash
+npm run dev          # Development with HMR
+npm run build        # Production build (SSR)
+npm run build:static # Static site generation
+npm run preview      # Preview production
+npm run lint         # ESLint + Prettier
+npm run type-check   # TypeScript strict check
+npm run test:unit    # Vitest unit tests
+npm run test:e2e     # Playwright E2E tests
+npm run analyze      # Bundle analyzer
+```
 
 ---
 
 ## 🔒 Security
 
-- **AES-GCM Encryption** - Client-side encryption for sensitive data
-- **Server Proxy** - API keys hidden on server
-- **Rate Limiting** - Token bucket algorithm
-- **Input Validation** - Zod schema validation
-- **CSP Headers** - Content Security Policy
+- ✅ AES-256 client-side encryption
+- ✅ DOMPurify for XSS prevention
+- ✅ CSP headers via Nuxt security module
+- ✅ API keys never exposed to client
+- ✅ Gitleaks secret scanning in CI/CD
+- See [SECURITY.md](SECURITY.md) for vulnerability reporting
 
 ---
 
-## ♿ Accessibility
+## 🚀 Deployment
 
-- WCAG 2.1 AA compliant
-- Keyboard navigation
-- Screen reader support
-- Focus management
-- Reduced motion support
+### Vercel (Recommended)
+```bash
+npx vercel --prod
+```
 
----
+### Docker
+```bash
+docker build -t ai-vibe-chat-v1 .
+docker run -p 3000:3000 --env-file .env ai-vibe-chat-v1
+```
 
-## ✅ Stabilization Status (Ralph 5-Iteration Loop)
-
-| Iteration | Focus | Status |
-|-----------|-------|--------|
-| 1 | Hard Audit & Failure Mapping | ✅ Complete |
-| 2 | Core Runtime Stabilization | ✅ Complete |
-| 3 | Feature Repair Pass | ✅ Complete |
-| 4 | UX, Error Handling & Noise Removal | ✅ Complete |
-| 5 | Browser Verification & Lock-In | ✅ Complete |
-
-**Current State:**
-- ✅ App builds successfully
-- ✅ Dev server runs on http://localhost:3000
-- ✅ API endpoints working
-- ✅ Vue 3 + Nuxt 3 + Naive UI stack operational
+### Node.js Server
+```bash
+npm run build
+node .output/server/index.mjs
+```
 
 ---
 
-## 📄 License
+## 🛣️ Roadmap
 
-MIT License - see LICENSE file for details.
+- [x] AES-256 encryption
+- [x] Multi-provider routing
+- [x] Streaming responses
+- [x] PWA support
+- [ ] **v2.0**: RAG with local files
+- [ ] **v2.0**: Image generation support
+- [ ] **v2.0**: Plugin marketplace
+- [ ] **v2.1**: Real-time collaboration
 
 ---
 
-<p align="center">
-  <i>Rebuilt with ❤️ using Vue 3 + Nuxt 3 + Naive UI</i>
-</p>
+## 🔗 Ecosystem
 
+> AI-VIBE-CHAT-V1 is part of the **[AI-VIBE Ecosystem](https://github.com/mk-knight23/AI-VIBE-ECOSYSTEM)** — a collection of 11 production-grade AI applications.
 
-## 🎯 Problem Solved
+| Project | Description |
+|---------|-------------|
+| [AI-VIBE-CHAT-V2](https://github.com/mk-knight23/AI-VIBE-CHAT-V2) | SvelteKit 5 high-performance chat |
+| [AI-VIBE-CHAT-V3](https://github.com/mk-knight23/AI-VIBE-CHAT-V3) | Next.js 15 multi-agent interface |
+| [AI-VIBE-CHAT-V4](https://github.com/mk-knight23/AI-VIBE-CHAT-V4) | AI provider benchmarking dashboard |
+| [AI-VIBE-CLI-PYTHON](https://github.com/mk-knight23/AI-VIBE-CLI-PYTHON) | Enterprise Python CLI agent |
+| [AI-VIBE-ECOSYSTEM](https://github.com/mk-knight23/AI-VIBE-ECOSYSTEM) | Master hub for all projects |
 
-This repository provides a streamlined approach to modern development needs, enabling developers to build robust applications with minimal complexity and maximum efficiency.
+---
 
-## ✨ Features
+<div align="center">
 
-- **Core Functionality:** Primary features and capabilities
-- **Production Ready:** Built for real-world deployment scenarios
-- **Optimized Performance:** Efficient resource utilization
-- **Developer Experience:** Clear documentation and intuitive API
+**Built with 🔥 by [Kazi Musharraf](https://mkazi.live)**
 
-## 🌐 Deployment
+[![GitHub](https://img.shields.io/badge/GitHub-mk--knight23-181717?style=flat&logo=github)](https://github.com/mk-knight23)
+[![Twitter](https://img.shields.io/badge/Twitter-@mk__knight__23-1DA1F2?style=flat&logo=twitter)](https://twitter.com/mk_knight_23)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-kazi--musharraf-0A66C2?style=flat&logo=linkedin)](https://www.linkedin.com/in/kazi-musharraf-0674871a4)
+[![Website](https://img.shields.io/badge/Website-mkazi.live-FF6B6B?style=flat&logo=safari)](https://mkazi.live)
 
-### Live URLs
+*Part of the [AI-VIBE Ecosystem](https://github.com/mk-knight23/AI-VIBE-ECOSYSTEM) · 11 Projects · Built in India 🇮🇳*
 
-| Platform | URL |
-|----------|-----|
-| Vercel | [Deployed Link] |
-| GitHub Pages | [Deployed Link] |
-
-## Security
-
-This project follows security best practices:
-- No hardcoded credentials
-- Dependency scanning enabled
-- Security headers configured
-- Regular security audits performed
+</div>
